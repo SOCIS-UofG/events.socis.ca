@@ -1,8 +1,7 @@
-import { LoadingRelative } from "@/components/Loading";
 import { type Event } from "@/types/event";
-import { Status } from "@/types/status";
 import { type User } from "next-auth";
 import { useState } from "react";
+import { LoadingSpinner } from "socis-components";
 
 /**
  * Props for the delete button.
@@ -10,6 +9,16 @@ import { useState } from "react";
 interface Props {
   user: User;
   event: Event;
+}
+
+/**
+ * Status of the deletion.
+ */
+enum Status {
+  IDLE,
+  LOADING,
+  SUCCESS,
+  ERROR,
 }
 
 /**
@@ -95,7 +104,7 @@ export default function DeleteButton(props: Props): JSX.Element {
         onClick={async () => await deleteEvent(user)}
       >
         {status === Status.LOADING ? (
-          <LoadingRelative className="h-5 w-5" />
+          <LoadingSpinner className="h-5 w-5" />
         ) : (
           <CheckmarkSvg />
         )}

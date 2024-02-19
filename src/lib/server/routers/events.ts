@@ -44,7 +44,7 @@ export const eventsRouter = {
       }),
     )
     .mutation(async ({ input }) => {
-      const user = await Prisma.getUserBySecret(input.accessToken);
+      const user = await Prisma.getUserBySecretNoPassword(input.accessToken);
       if (!user) {
         return { success: false, event: null };
       }
@@ -65,7 +65,7 @@ export const eventsRouter = {
         perks: event.perks || config.event.default.perks,
         rsvps: event.rsvps || config.event.default.rsvps,
         pinned: event.pinned || config.event.default.pinned,
-      }).catch(() => null);
+      });
 
       if (!newEvent) {
         return { success: false, event: null };
@@ -89,7 +89,7 @@ export const eventsRouter = {
       }),
     )
     .mutation(async ({ input }) => {
-      const user = await Prisma.getUserBySecret(input.accessToken);
+      const user = await Prisma.getUserBySecretNoPassword(input.accessToken);
       if (!user) {
         return { success: false, event: null };
       }
@@ -98,7 +98,7 @@ export const eventsRouter = {
         return { success: false, event: null };
       }
 
-      const event = await Prisma.deleteEvent(input.id).catch(() => null);
+      const event = await Prisma.deleteEventById(input.id);
       if (!event) {
         return { success: false, event: null };
       }
@@ -143,7 +143,7 @@ export const eventsRouter = {
       }),
     )
     .mutation(async ({ input }) => {
-      const user = await Prisma.getUserBySecret(input.accessToken);
+      const user = await Prisma.getUserBySecretNoPassword(input.accessToken);
       if (!user) {
         return { success: false, event: null };
       }
@@ -153,7 +153,7 @@ export const eventsRouter = {
       }
 
       const event = input.event as Event;
-      const updatedEvent = await Prisma.updateEvent(event.id, {
+      const updatedEvent = await Prisma.updateEventById(event.id, {
         name: event.name,
         description: event.description,
         date: event.date,
@@ -162,7 +162,7 @@ export const eventsRouter = {
         perks: event.perks || config.event.default.perks,
         rsvps: event.rsvps || config.event.default.rsvps,
         pinned: event.pinned || config.event.default.pinned,
-      } as Event).catch(() => null);
+      } as Event);
 
       if (!updatedEvent) {
         return { success: false, event: null };
@@ -177,8 +177,9 @@ export const eventsRouter = {
    * @returns The events
    */
   getAllEvents: publicProcedure.mutation(async () => {
-    const events = await Prisma.getEvents();
-    return { success: true, events: events as Event[] };
+    const events = await Prisma.getAllEvents();
+
+    return { success: true, events };
   }),
 
   /**
@@ -200,6 +201,6 @@ export const eventsRouter = {
         return { success: false, event: null };
       }
 
-      return { success: true, event: event as Event };
+      return { success: true, event };
     }),
 };

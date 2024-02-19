@@ -6,11 +6,11 @@ export class Prisma extends PrismaClient {
   constructor() {
     super();
     this.$connect();
-    console.log("Prisma connected");
   }
 
   /**
    * Get a table
+   *
    * @param table The table to get
    * @returns The table
    */
@@ -21,6 +21,7 @@ export class Prisma extends PrismaClient {
 
   /**
    * Finds many rows in a table
+   *
    * @param table The table to find in
    * @param opts The find options
    * @returns The rows found
@@ -29,12 +30,18 @@ export class Prisma extends PrismaClient {
     table: string,
     opts: any,
   ): Promise<T[]> => {
-    const tableRef: any = Prisma.getTable(table);
-    return await tableRef.findMany(opts);
+    try {
+      const tableRef: any = Prisma.getTable(table);
+
+      return (await tableRef.findMany(opts)) as T[];
+    } catch {
+      return [];
+    }
   };
 
   /**
    * Finds a row in a table
+   *
    * @param table The table to find in
    * @param opts The find options
    * @returns The row found, or null if it doesn't exist
@@ -43,12 +50,18 @@ export class Prisma extends PrismaClient {
     table: string,
     opts: any,
   ): Promise<T | null> => {
-    const tableRef: any = Prisma.getTable(table);
-    return await tableRef.findFirst(opts);
+    try {
+      const tableRef: any = Prisma.getTable(table);
+
+      return (await tableRef.findFirst(opts)) as T;
+    } catch {
+      return null;
+    }
   };
 
   /**
    * Creates a row in a table
+   *
    * @param table The table to create in
    * @param opts The creation options
    * @returns The created row
@@ -56,13 +69,19 @@ export class Prisma extends PrismaClient {
   public static readonly create = async <T>(
     table: string,
     opts: any,
-  ): Promise<T> => {
-    const tableRef: any = Prisma.getTable(table);
-    return await tableRef.create(opts);
+  ): Promise<T | null> => {
+    try {
+      const tableRef: any = Prisma.getTable(table);
+
+      return (await tableRef.create(opts)) as T;
+    } catch {
+      return null;
+    }
   };
 
   /**
    * Updates a row in a table
+   *
    * @param table The table to update
    * @param where The where clause to update
    * @param data The data to update
@@ -71,13 +90,19 @@ export class Prisma extends PrismaClient {
   public static readonly update = async <T>(
     table: string,
     data: any,
-  ): Promise<T> => {
-    const tableRef: any = Prisma.getTable(table);
-    return await tableRef.update(data);
+  ): Promise<T | null> => {
+    try {
+      const tableRef: any = Prisma.getTable(table);
+
+      return (await tableRef.update(data)) as T;
+    } catch {
+      return null;
+    }
   };
 
   /**
    * Deletes a row from a table
+   *
    * @param table The table to delete from
    * @param opts The delete options
    * @returns The deleted row
@@ -85,68 +110,112 @@ export class Prisma extends PrismaClient {
   public static readonly delete = async <T>(
     table: string,
     opts: any,
-  ): Promise<T> => {
-    const tableRef: any = Prisma.getTable(table);
-    return await tableRef.delete(opts);
+  ): Promise<T | null> => {
+    try {
+      const tableRef: any = Prisma.getTable(table);
+
+      return (await tableRef.delete(opts)) as T;
+    } catch {
+      return null;
+    }
   };
 
   /**
-   * Get all users
+   * Get all users in the database (no password or secret)
    *
    * @returns The users
    */
-  public static readonly getAllUsers = async (
-    select: Record<string, boolean>,
-  ) => {
+  public static readonly getAllUsersSecure = async (): Promise<User[]> => {
     return await Prisma.findMany("user", {
-      select,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        permissions: true,
+        roles: true,
+
+        // ignore password and secret
+        password: false,
+        secret: false,
+      },
     });
   };
 
   /**
    * Get an user by their email
-   * @param email The email to get
+   *
+   * @param email The user's email
    * @returns The user
    */
-  public static readonly getUserByEmail = async (
+  public static readonly getUserByEmailNoPassword = async (
     email: string,
   ): Promise<User | null> => {
     return await Prisma.findOne("user", {
       where: {
         email,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        secret: true,
+        permissions: true,
+        roles: true,
+
+        // ignore password
+        password: false,
+      },
     });
   };
 
   /**
    * Get an user by their secret
-   * @param secret The secret to get
+   *
+   * @param secret The user's secret
    * @returns The user
    */
-  public static readonly getUserBySecret = async (
+  public static readonly getUserBySecretNoPassword = async (
     secret: string,
   ): Promise<User | null> => {
     return await Prisma.findOne("user", {
       where: {
         secret,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        secret: true,
+        permissions: true,
+        roles: true,
+
+        // ignore password
+        password: false,
+      },
     });
   };
 
   /**
    * Get all of the events
+   *
    * @returns The events
    */
-  public static readonly getEvents = async () => {
+  public static readonly getAllEvents = async (): Promise<Event[]> => {
     return await Prisma.findMany("event", {});
   };
 
   /**
    * Get an event by its id
+   *
    * @param eventId The event id
    * @returns The event
    */
-  public static readonly getEventById = async (eventId: string) => {
+  public static readonly getEventById = async (
+    eventId: string,
+  ): Promise<Event | null> => {
     return await Prisma.findOne("event", {
       where: {
         id: eventId,
@@ -155,11 +224,14 @@ export class Prisma extends PrismaClient {
   };
 
   /**
-   * Delete an event
+   * Delete an event by its id
+   *
    * @param eventId The event id
    * @returns The deleted event
    */
-  public static readonly deleteEvent = async (eventId: string) => {
+  public static readonly deleteEventById = async (
+    eventId: string,
+  ): Promise<Event | null> => {
     return await Prisma.delete("event", {
       where: {
         id: eventId,
@@ -169,10 +241,13 @@ export class Prisma extends PrismaClient {
 
   /**
    * Create an event
+   *
    * @param event The event to create
    * @returns The created event
    */
-  public static readonly createEvent = async (event: Event) => {
+  public static readonly createEvent = async (
+    event: Event,
+  ): Promise<Event | null> => {
     return await Prisma.create("event", {
       data: event,
     });
@@ -180,10 +255,15 @@ export class Prisma extends PrismaClient {
 
   /**
    * Update an event
-   * @param event The event to update
+   *
+   * @param eventId The event id
+   * @param data The data to update
    * @returns The updated event
    */
-  public static readonly updateEvent = async (eventId: string, data: Event) => {
+  public static readonly updateEventById = async (
+    eventId: string,
+    data: Event,
+  ): Promise<Event | null> => {
     return await Prisma.update("event", {
       where: {
         id: eventId,
