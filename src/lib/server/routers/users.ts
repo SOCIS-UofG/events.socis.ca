@@ -1,6 +1,5 @@
 import { Prisma } from "@/lib/prisma";
 import { publicProcedure } from "../trpc";
-import { type User } from "next-auth";
 
 export const usersRouter = {
   /**
@@ -9,17 +8,8 @@ export const usersRouter = {
    * @returns The users
    */
   getAllUsersSecure: publicProcedure.mutation(async () => {
-    const users = await Prisma.getAllUsers({
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      permissions: true,
-      roles: true,
-      password: false,
-      secret: false,
-    });
+    const users = await Prisma.getAllUsersSecure();
 
-    return { success: true, users: users as User[] };
+    return { success: true, users };
   }),
 };

@@ -7,7 +7,7 @@ const config = {
       description: "Empty event description",
       date: "No date provided",
       location: "No location provided",
-      image: "/images/default-banner-socis_event_plain-green.png",
+      image: "/images/default-event_banner.png",
       perks: [],
       rsvps: [],
       pinned: false,
