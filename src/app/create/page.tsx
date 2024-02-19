@@ -19,9 +19,9 @@ import { useRouter } from "next/navigation";
 import { type Event } from "@/types/event";
 import { isValidEventData } from "@/lib/utils/events";
 import { Checkbox } from "@nextui-org/react";
-import { genId } from "@/lib/crypto";
 import config from "@/lib/config/event.config";
 import { trpc } from "@/lib/trpc/client";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * The status of the form.
@@ -72,11 +72,10 @@ function Components(): JSX.Element {
   useEffect(() => {
     if (event) return;
 
-    genId().then((id) => {
-      setEvent({
-        id,
-        ...config.event.default,
-      });
+    const id = uuidv4();
+    setEvent({
+      id,
+      ...config.event.default,
     });
   }, [event]);
 
