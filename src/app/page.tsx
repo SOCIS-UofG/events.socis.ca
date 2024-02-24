@@ -80,9 +80,11 @@ function Components(): JSX.Element {
    */
   if (fetchStatus === "error") {
     return (
-      <ErrorMessage>
-        An error occurred while fetching the events. Please try again later.
-      </ErrorMessage>
+      <MainWrapper>
+        <ErrorMessage>
+          An error occurred while fetching the events. Please try again later.
+        </ErrorMessage>
+      </MainWrapper>
     );
   }
 
