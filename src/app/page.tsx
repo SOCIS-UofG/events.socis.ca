@@ -11,6 +11,7 @@ import {
   CustomCursor,
   Navbar,
   LinkButton,
+  NavbarTabs,
 } from "socis-components";
 import { trpc } from "@/lib/trpc/client";
 import config from "@/lib/config/event.config";
@@ -24,7 +25,7 @@ import { Permission } from "@/types/permission";
 export default function EventsPage() {
   return (
     <>
-      <Navbar />
+      <Navbar underlined={NavbarTabs.EVENTS} />
       {/**<Background text={"EVENTS"} animated={false} className="-z-10" /> */}
 
       <SessionProvider>
