@@ -1,3 +1,4 @@
+import { trpc } from "@/lib/trpc/client";
 import { type Event } from "@/types/event";
 import { type User } from "next-auth";
 import { useState } from "react";
@@ -12,7 +13,7 @@ interface Props {
 }
 
 /**
- * Status of the deletion.
+ * Status for the delete button.
  */
 enum Status {
   IDLE,
@@ -29,12 +30,9 @@ enum Status {
  */
 export default function DeleteButton(props: Props): JSX.Element {
   const { user, event } = props;
-
-  /**
-   * States to keep track of the status of the deletion.
-   */
-  const [status, setStatus] = useState(Status.IDLE);
+  const { mutateAsync: deleteEvent } = trpc.deleteEvent.useMutation();
   const [confirm, setConfirm] = useState(false);
+  const [status, setStatus] = useState<Status>(Status.IDLE);
 
   /**
    * Delete the event.
@@ -42,27 +40,10 @@ export default function DeleteButton(props: Props): JSX.Element {
    * @param user The user who's trying to delete the event
    * @returns void
    */
-  async function deleteEvent(user: User): Promise<void> {
-    setStatus(Status.LOADING);
+  async function onDeleteEvent(user: User): Promise<void> {
+    const res = await deleteEvent({ id: event.id, accessToken: user.secret });
 
-    /**
-     * Send an http request to the api to delete the event.
-     */
-    const res = await deleteEventApi(user, event.id);
-
-    /**
-     * If the event was successfully deleted, reload the page.
-     */
-    if (res.ok) {
-      setStatus(Status.SUCCESS);
-
-      return window.location.reload();
-    }
-
-    /**
-     * If the event was not successfully deleted, show an error message.
-     */
-    setStatus(Status.ERROR);
+    setStatus(res.success ? Status.ERROR : Status.SUCCESS);
   }
 
   /**
@@ -101,7 +82,7 @@ export default function DeleteButton(props: Props): JSX.Element {
       <button
         className="flex h-10 min-h-[2.5rem] w-10 flex-col items-center justify-center rounded-lg border border-primary px-4 text-center text-sm font-thin text-white hover:bg-emerald-900/50 disabled:opacity-50"
         disabled={status === Status.LOADING}
-        onClick={async () => await deleteEvent(user)}
+        onClick={async () => await onDeleteEvent(user)}
       >
         {status === Status.LOADING ? (
           <LoadingSpinner className="h-5 w-5" />
@@ -177,22 +158,4 @@ function XSvg(): JSX.Element {
       />
     </svg>
   );
-}
-
-/**
- * Delete an event.
- *
- * @param user The user who's trying to delete the event
- * @param id The id of the event to delete
- * @returns void
- */
-async function deleteEventApi(user: User, eventId: string) {
-  return await fetch("/api/events", {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: user.secret,
-    },
-    body: JSON.stringify({ eventId }),
-  });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useState, useEffect } from "react";
+import { type FormEvent, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
 import { type Session } from "next-auth";
 import { hasPermissions } from "@/lib/utils/permissions";
@@ -64,20 +64,10 @@ function Components(): JSX.Element {
   const router = useRouter();
 
   const [creationStatus, setCreationStatus] = useState(FormStatus.IDLE);
-  const [event, setEvent] = useState<Event | undefined>(undefined);
-
-  /**
-   * Set the event to an empty event when the page is first loaded.
-   */
-  useEffect(() => {
-    if (event) return;
-
-    const id = uuidv4();
-    setEvent({
-      id,
-      ...config.event.default,
-    });
-  }, [event]);
+  const [event, setEvent] = useState<Event>({
+    id: uuidv4(),
+    ...config.event.default,
+  });
 
   /**
    * If the event is being created, the user is not authenticated, or the
@@ -133,7 +123,7 @@ function Components(): JSX.Element {
 
         <div className="flex flex-col gap-5">
           <p className="text-center text-sm font-light text-white lg:text-base">
-            You do not have the permissions to manage users.
+            You do not have the permissions to manage events.
           </p>
           <a
             href="https://auth.socis.ca/signin"

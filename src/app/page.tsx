@@ -14,16 +14,7 @@ import {
 } from "socis-components";
 import { trpc } from "@/lib/trpc/client";
 import config from "@/lib/config/event.config";
-
-/**
- * Status type
- */
-enum Status {
-  IDLE,
-  LOADING,
-  SUCCESS,
-  ERROR,
-}
+import { Permission } from "@/types/permission";
 
 /**
  * Wraps the main components in a session provider for next auth.
@@ -51,10 +42,9 @@ export default function EventsPage() {
  */
 function Components(): JSX.Element {
   const { data: session, status: sessionStatus } = useSession();
-  const { mutateAsync: getEvents } = trpc.getAllEvents.useMutation();
-
+  const { mutateAsync: getEvents, status: fetchStatus } =
+    trpc.getAllEvents.useMutation();
   const [events, setEvents] = useState<Event[]>([]);
-  const [fetchStatus, setFetch] = useState<Status>(Status.IDLE);
 
   /**
    * We need to access the events from the database.
@@ -64,36 +54,20 @@ function Components(): JSX.Element {
      * If the fetch status is not idle, then we don't need to
      * fetch the events again.
      */
-    if (fetchStatus !== Status.IDLE) {
+    if (fetchStatus !== "idle") {
       return;
     }
 
     /**
-     * Set the fetch status to loading. This is so that
-     * we can display a loading spinner while the events
-     * are being fetched.
-     *
-     * It also stops the useEffect from running again.
-     */
-    setFetch(Status.LOADING);
-
-    /**
      * Fetch the events from the database.
      */
-    getEvents()
-      .then((res) => {
-        setEvents(res.events);
-        setFetch(Status.SUCCESS);
-      })
-      .catch(() => {
-        setFetch(Status.ERROR);
-      });
+    getEvents().then((data) => setEvents(data.events));
   }, [session]);
 
   /**
    * If the fetch is still in progress, display a loading spinner.
    */
-  if (sessionStatus === "loading" || fetchStatus === Status.LOADING) {
+  if (sessionStatus === "loading" || fetchStatus === "loading") {
     return <LoadingSpinnerCenter />;
   }
 
@@ -102,7 +76,7 @@ function Components(): JSX.Element {
    *
    * TODO: Add a refresh button.
    */
-  if (fetchStatus === Status.ERROR) {
+  if (fetchStatus === "error") {
     return (
       <ErrorMessage>
         An error occurred while fetching the events. Please try again later.
@@ -114,7 +88,7 @@ function Components(): JSX.Element {
    * If the user is authenticated and can create events, then they can create an event.
    */
   const CAN_CREATE_EVENTS =
-    session?.user && session.user.permissions.includes("CREATE_EVENT");
+    session?.user && session.user.permissions.includes(Permission.CREATE_EVENT);
 
   /**
    * Filter the events to only include pinned events.
@@ -189,7 +163,7 @@ function Components(): JSX.Element {
              * Render the pinned events.
              */}
             <div className="flex w-full flex-wrap items-start justify-start gap-10">
-              {fetchStatus === Status.SUCCESS &&
+              {fetchStatus === "success" &&
                 PINNED_EVENTS.map((event) => (
                   <EventCard
                     key={event.id}
@@ -235,7 +209,7 @@ function Components(): JSX.Element {
            * Render the upcoming events.
            */}
           <div className="flex w-full flex-wrap items-start justify-start gap-7">
-            {fetchStatus === Status.SUCCESS &&
+            {fetchStatus === "success" &&
               UPCOMING_EVENTS.map((event) => (
                 <EventCard key={event.id} user={session?.user} event={event} />
               ))}
@@ -264,7 +238,7 @@ function Components(): JSX.Element {
              * Render the past events.
              */}
             <div className="flex w-full flex-wrap items-start justify-start gap-7">
-              {fetchStatus === Status.SUCCESS &&
+              {fetchStatus === "success" &&
                 PAST_EVENTS.map((event) => (
                   <EventCard
                     key={event.id}
