@@ -75,62 +75,11 @@ html {
   -ms-animation: fadeIn ease 3s;
 }
 
-/* 1.35 second delay */
-.fade-in-delay {
-  animation: fadeInDelay ease 2.7s;
-  -webkit-animation: fadeInDelay ease 2.7s;
-  -moz-animation: fadeInDelay ease 2.7s;
-  -o-animation: fadeInDelay ease 2.7s;
-  -ms-animation: fadeInDelay ease 2.7s;
-}
-
 @keyframes fadeIn {
   0% {
     opacity: 0;
   }
   100% {
     opacity: 1;
-  }
-}
-
-@keyframes fadeInDelay {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes pulse {
-  0% {
-    -webkit-text-stroke-color: #393939;
-    opacity: 0.9;
-  }
-  50% {
-    -webkit-text-stroke-color: #10b981;
-    opacity: 1;
-  }
-  100% {
-    -webkit-text-stroke-color: #393939;
-    opacity: 0.9;
-  }
-}
-
-@keyframes slideIntro {
-  0% {
-    transform: translate(0, 0%);
-  }
-  10% {
-    transform: translate(0, 0%);
-  }
-  50% {
-    transform: translate(0, 100%);
-  }
-  100% {
-    transform: translate(0, -100%);
   }
 }

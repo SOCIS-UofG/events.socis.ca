@@ -140,7 +140,7 @@ function Components(): JSX.Element {
     <>
       <CustomCursor />
 
-      <MainWrapper className="fade-in-delay items-start justify-start gap-20 px-20 pb-20 pt-40">
+      <MainWrapper className="fade-in items-start justify-start gap-20 px-20 pb-20 pt-40">
         {/**
          * PINNED EVENTS
          *
@@ -191,7 +191,7 @@ function Components(): JSX.Element {
               Events that are coming up soon. Get involved by making a
               suggestion!
             </p>
-            <div className="flex w-full flex-row items-center justify-center">
+            <div className="flex w-full flex-row items-center justify-center gap-4">
               <LinkButton
                 href={
                   CAN_CREATE_EVENTS ? "/create" : config.event.suggestionUrl

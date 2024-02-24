@@ -10,8 +10,10 @@ import {
   Navbar,
   ErrorMessage,
   CustomCursor,
+  LinkButton,
 } from "socis-components";
 import { trpc } from "@/lib/trpc/client";
+import config from "@/lib/config/event.config";
 
 /**
  * Status type
@@ -99,17 +101,29 @@ function Components(): JSX.Element {
    * Return the main components.
    */
   return (
-    <MainWrapper className="z-40">
-      <a href="#" className="text-white">
-        Download the Event Planning Questionnaire
-      </a>
-      <a href="#" className="text-white">
-        Submit a SE&RM Event Proposal
-      </a>
-      <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
-        SE&RM Approved Members
-      </h1>
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-10">
+    <MainWrapper className="z-40 gap-7">
+      <div className="flex flex-col items-center justify-center gap-4">
+        <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
+          SE&RM Approved Members
+        </h1>
+        <p className="mx-auto  max-w-2xl text-center text-white">
+          The following members have been approved to submit SE&RM events. You
+          can also download the event planning questionnaire and submit a SE&RM
+          event proposal.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-4">
+        <LinkButton
+          href={config.event.planningQuestionaireUrl}
+          className="text-white"
+        >
+          Download the Event Planning Questionnaire
+        </LinkButton>
+        <LinkButton href={config.event.sermEventUrl} className="text-white">
+          Submit a SE&RM Event Proposal
+        </LinkButton>
+      </div>
+      <div className=" flex flex-wrap items-center justify-center gap-10">
         {users.map((user) => {
           if (user.roles.includes(Role.SERM_APPROVED)) {
             return (

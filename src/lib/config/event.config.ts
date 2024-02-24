@@ -2,12 +2,14 @@ const config = {
   event: {
     calendarUrl: "",
     suggestionUrl: "",
+    planningQuestionaireUrl: "",
+    sermEventUrl: "",
     default: {
       name: "Event",
       description: "Empty event description",
       date: "No date provided",
       location: "No location provided",
-      image: "/images/default-event_banner.png",
+      image: "/images/default-event-image.png",
       perks: [],
       rsvps: [],
       pinned: false,
