@@ -16,6 +16,7 @@ import {
 import { trpc } from "@/lib/trpc/client";
 import config from "@/lib/config/event.config";
 import { Permission } from "@/types/permission";
+import { hasPermissions } from "@/lib/utils/permissions";
 
 /**
  * Wraps the main components in a session provider for next auth.
@@ -89,7 +90,7 @@ function Components(): JSX.Element {
    * If the user is authenticated and can create events, then they can create an event.
    */
   const CAN_CREATE_EVENTS =
-    session?.user && session.user.permissions.includes(Permission.CREATE_EVENT);
+    session?.user && hasPermissions(session.user.permissions, [Permission.CREATE_EVENT]);
 
   /**
    * Filter the events to only include pinned events.
