@@ -4,6 +4,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { type Event } from "@/types/event";
+import { trpc } from "@/lib/trpc/client";
 import {
   LoadingSpinnerCenter,
   MainWrapper,
@@ -11,17 +12,6 @@ import {
   CustomCursor,
   LinkButton,
 } from "socis-components";
-import { trpc } from "@/lib/trpc/client";
-
-/**
- * Status type
- */
-enum Status {
-  IDLE,
-  LOADING,
-  SUCCESS,
-  ERROR,
-}
 
 /**
  * Wraps the main components in a session provider for next auth.
@@ -47,21 +37,11 @@ export default function EventPage(): JSX.Element {
  * @returns JSX.Element
  */
 function Components(): JSX.Element {
-  /**
-   * Get the current session
-   */
   const { status: sessionStatus } = useSession();
 
-  /**
-   * Manage event and status states
-   */
-  const [event, setEvent] = useState<Event | undefined>(undefined);
-  const [status, setStatus] = useState<Status>(Status.IDLE);
-  const { mutateAsync: getEvent } = trpc.getEvent.useMutation();
+  const [event, setEvent] = useState<Event | null>(null);
+  const { mutateAsync: getEventd, status } = trpc.getEvent.useMutation();
 
-  /**
-   * Pathname to get the id of the event
-   */
   const path = usePathname();
 
   /**
@@ -71,48 +51,28 @@ function Components(): JSX.Element {
     /**
      * If the fetch status is not idle, then we don't need to fetch the events again.
      */
-    if (status !== Status.IDLE) {
+    if (status !== "idle") {
       return;
     }
-
-    /**
-     * Set the fetch status to loading.
-     */
-    setStatus(Status.LOADING);
 
     /**
      * Get the event id from the path
      */
     const eventId = path.split("/").pop();
-
-    /**
-     * If the event id is undefined, display an error message.
-     */
     if (!eventId) {
-      return setStatus(Status.ERROR);
+      return;
     }
 
     /**
      * Fetch the event from the database
      */
-    getEvent({ id: eventId })
-      .then((res) => {
-        if (!res.event) {
-          return setStatus(Status.ERROR);
-        }
-
-        setEvent(res.event);
-        setStatus(Status.SUCCESS);
-      })
-      .catch(() => {
-        setStatus(Status.ERROR);
-      });
+    getEventd({ id: eventId }).then((res) => setEvent(res.event));
   }, []);
 
   /**
    * If the user is currently being authenticated, display a loading spinner.
    */
-  if (sessionStatus === "loading" || status === Status.LOADING) {
+  if (sessionStatus === "loading" || status === "loading") {
     return <LoadingSpinnerCenter />;
   }
 
