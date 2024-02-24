@@ -140,7 +140,7 @@ function Components(): JSX.Element {
     <>
       <CustomCursor />
 
-      <MainWrapper className="fade-in items-start justify-start gap-20 px-20 pb-20 pt-40">
+      <MainWrapper className="fade-in items-start justify-start gap-20 px-12 pb-20 pt-36 lg:px-20 lg:pt-40">
         {/**
          * PINNED EVENTS
          *
@@ -151,10 +151,10 @@ function Components(): JSX.Element {
         {PINNED_EVENTS.length > 0 && (
           <div className="flex flex-col items-start justify-start gap-7">
             <div className="flex flex-col items-start justify-start gap-3">
-              <h1 className="text-center text-4xl font-extrabold uppercase text-white lg:text-5xl">
+              <h1 className="text-left text-4xl font-extrabold uppercase text-white md:text-7xl lg:text-8xl">
                 Pinned Events
               </h1>
-              <p className="text-center text-sm font-thin text-white">
+              <p className="text-left text-sm font-thin text-white">
                 Events that we are currently promoting.
               </p>
             </div>
@@ -184,14 +184,14 @@ function Components(): JSX.Element {
          */}
         <div className="flex flex-col items-start justify-start gap-7">
           <div className="flex flex-col items-start justify-start gap-3">
-            <h1 className="text-center text-4xl font-extrabold uppercase text-white lg:text-5xl">
+            <h1 className="text-left text-4xl font-extrabold uppercase text-white md:text-7xl lg:text-8xl">
               Upcoming Events
             </h1>
-            <p className="text-center text-sm font-thin text-white">
+            <p className="text-left text-sm font-thin text-white">
               Events that are coming up soon. Get involved by making a
               suggestion!
             </p>
-            <div className="flex w-full flex-row items-center justify-center gap-4">
+            <div className="flex w-full flex-col items-start justify-start gap-4 md:flex-row">
               <LinkButton
                 href={
                   CAN_CREATE_EVENTS ? "/create" : config.event.suggestionUrl
@@ -226,10 +226,10 @@ function Components(): JSX.Element {
         {PAST_EVENTS.length > 0 && (
           <div className="flex flex-col items-start justify-start gap-7">
             <div className="flex flex-col items-start justify-start gap-3">
-              <h1 className="text-center text-4xl font-extrabold uppercase text-white lg:text-5xl">
+              <h1 className="text-left text-4xl font-extrabold uppercase text-white md:text-7xl lg:text-8xl">
                 Past Events
               </h1>
-              <p className="text-center text-sm font-thin text-white">
+              <p className="text-left text-sm font-thin text-white">
                 Events that have already happened.
               </p>
             </div>
