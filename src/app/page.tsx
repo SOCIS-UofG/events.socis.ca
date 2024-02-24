@@ -90,7 +90,7 @@ function Components(): JSX.Element {
    * If the user is authenticated and can create events, then they can create an event.
    */
   const CAN_CREATE_EVENTS =
-    session?.user && hasPermissions(session.user.permissions, [Permission.CREATE_EVENT]);
+    session?.user && hasPermissions(session.user, [Permission.CREATE_EVENT]);
 
   /**
    * Filter the events to only include pinned events.
