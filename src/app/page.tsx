@@ -12,11 +12,13 @@ import {
   Navbar,
   LinkButton,
   NavbarTabs,
+  Background,
 } from "socis-components";
 import { trpc } from "@/lib/trpc/client";
 import config from "@/lib/config/event.config";
 import { Permission } from "@/types/permission";
 import { hasPermissions } from "@/lib/utils/permissions";
+import { NextUIProvider } from "@nextui-org/react";
 
 /**
  * Wraps the main components in a session provider for next auth.
@@ -27,11 +29,14 @@ export default function EventsPage() {
   return (
     <>
       <Navbar underlined={NavbarTabs.EVENTS} />
-      {/**<Background text={"EVENTS"} animated={false} className="-z-10" /> */}
+      <CustomCursor />
+      <Background text={"EVENTS"} animated={false} className="relative z-0" />
 
-      <SessionProvider>
-        <Components />
-      </SessionProvider>
+      <NextUIProvider>
+        <SessionProvider>
+          <Components />
+        </SessionProvider>
+      </NextUIProvider>
     </>
   );
 }
@@ -141,119 +146,104 @@ function Components(): JSX.Element {
    * Return the main components
    */
   return (
-    <>
-      <CustomCursor />
-
-      <MainWrapper className="fade-in items-start justify-start gap-20 px-12 pb-20 pt-36 lg:px-20 lg:pt-40">
-        {/**
-         * PINNED EVENTS
-         *
-         * If there are pinned events, then display them in their own section.
-         * If there are no pinned events, don't display the section or header. This
-         * will prevent the page from looking empty.
-         */}
-        {PINNED_EVENTS.length > 0 && (
-          <div className="flex flex-col items-start justify-start gap-7">
-            <div className="flex flex-col items-start justify-start gap-3">
-              <h1 className="text-left text-4xl font-extrabold uppercase text-white md:text-7xl lg:text-8xl">
-                Pinned Events
-              </h1>
-              <p className="text-left text-sm font-thin text-white">
-                Events that we are currently promoting.
-              </p>
-            </div>
-
-            {/**
-             * Render the pinned events.
-             */}
-            <div className="flex w-full flex-wrap items-start justify-start gap-10">
-              {fetchStatus === "success" &&
-                PINNED_EVENTS.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    user={session?.user}
-                    event={event}
-                  />
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/**
-         * UPCOMING EVENTS
-         *
-         * Show all upcoming events (events whose dates are less than the current date).
-         * At the end of the events list, render a button to create a new event. This will
-         * appear even if there are no events so that users can suggest/create and event.
-         */}
+    <MainWrapper className="fade-in relative items-start justify-start gap-20 px-12 pb-20 pt-36 lg:px-20 lg:pt-40">
+      {/**
+       * PINNED EVENTS
+       *
+       * If there are pinned events, then display them in their own section.
+       * If there are no pinned events, don't display the section or header. This
+       * will prevent the page from looking empty.
+       */}
+      {PINNED_EVENTS.length > 0 && (
         <div className="flex flex-col items-start justify-start gap-7">
           <div className="flex flex-col items-start justify-start gap-3">
             <h1 className="text-left text-4xl font-extrabold uppercase text-white md:text-7xl lg:text-8xl">
-              Upcoming Events
+              Pinned Events
             </h1>
             <p className="text-left text-sm font-thin text-white">
-              Events that are coming up soon. Get involved by making a
-              suggestion!
+              Events that we are currently promoting.
             </p>
-            <div className="flex w-full flex-col items-start justify-start gap-4 md:flex-row">
-              <LinkButton
-                href={
-                  CAN_CREATE_EVENTS ? "/create" : config.event.suggestionUrl
-                }
-              >
-                {CAN_CREATE_EVENTS ? "Create an event" : "Suggest an event"}
-              </LinkButton>
-              <LinkButton href={config.event.calendarUrl}>
-                See Event Calendar
-              </LinkButton>
-            </div>
           </div>
 
           {/**
-           * Render the upcoming events.
+           * Render the pinned events.
            */}
-          <div className="flex w-full flex-wrap items-start justify-start gap-7">
+          <div className="flex w-full flex-wrap items-start justify-start gap-10">
             {fetchStatus === "success" &&
-              UPCOMING_EVENTS.map((event) => (
+              PINNED_EVENTS.map((event) => (
                 <EventCard key={event.id} user={session?.user} event={event} />
               ))}
           </div>
         </div>
+      )}
+
+      {/**
+       * UPCOMING EVENTS
+       *
+       * Show all upcoming events (events whose dates are less than the current date).
+       * At the end of the events list, render a button to create a new event. This will
+       * appear even if there are no events so that users can suggest/create and event.
+       */}
+      <div className="flex flex-col items-start justify-start gap-7">
+        <div className="flex flex-col items-start justify-start gap-3">
+          <h1 className="text-left text-4xl font-extrabold uppercase text-white sm:text-6xl md:text-7xl lg:text-8xl">
+            Upcoming Events
+          </h1>
+          <p className="text-left text-sm font-thin text-white">
+            Events that are coming up soon. Get involved by making a suggestion!
+          </p>
+          <div className="flex w-full flex-wrap items-start justify-start gap-4">
+            <LinkButton
+              href={CAN_CREATE_EVENTS ? "/create" : config.event.suggestionUrl}
+            >
+              {CAN_CREATE_EVENTS ? "Create an event" : "Suggest an event"}
+            </LinkButton>
+            <LinkButton href={config.event.calendarUrl}>
+              See Event Calendar
+            </LinkButton>
+          </div>
+        </div>
 
         {/**
-         * PAST EVENTS
-         *
-         * Show all past events (events whose dates are greater than the current date).
-         * If there are no past events, don't display the section or header. This will
-         * prevent the page from looking empty.
+         * Render the upcoming events.
          */}
-        {PAST_EVENTS.length > 0 && (
-          <div className="flex flex-col items-start justify-start gap-7">
-            <div className="flex flex-col items-start justify-start gap-3">
-              <h1 className="text-left text-4xl font-extrabold uppercase text-white md:text-7xl lg:text-8xl">
-                Past Events
-              </h1>
-              <p className="text-left text-sm font-thin text-white">
-                Events that have already happened.
-              </p>
-            </div>
+        <div className="flex w-full flex-wrap items-start justify-start gap-7">
+          {fetchStatus === "success" &&
+            UPCOMING_EVENTS.map((event) => (
+              <EventCard key={event.id} user={session?.user} event={event} />
+            ))}
+        </div>
+      </div>
 
-            {/**
-             * Render the past events.
-             */}
-            <div className="flex w-full flex-wrap items-start justify-start gap-7">
-              {fetchStatus === "success" &&
-                PAST_EVENTS.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    user={session?.user}
-                    event={event}
-                  />
-                ))}
-            </div>
+      {/**
+       * PAST EVENTS
+       *
+       * Show all past events (events whose dates are greater than the current date).
+       * If there are no past events, don't display the section or header. This will
+       * prevent the page from looking empty.
+       */}
+      {PAST_EVENTS.length > 0 && (
+        <div className="flex flex-col items-start justify-start gap-7">
+          <div className="flex flex-col items-start justify-start gap-3">
+            <h1 className="text-left text-4xl font-extrabold uppercase text-white md:text-7xl lg:text-8xl">
+              Past Events
+            </h1>
+            <p className="text-left text-sm font-thin text-white">
+              Events that have already happened.
+            </p>
           </div>
-        )}
-      </MainWrapper>
-    </>
+
+          {/**
+           * Render the past events.
+           */}
+          <div className="flex w-full flex-wrap items-start justify-start gap-7">
+            {fetchStatus === "success" &&
+              PAST_EVENTS.map((event) => (
+                <EventCard key={event.id} user={session?.user} event={event} />
+              ))}
+          </div>
+        </div>
+      )}
+    </MainWrapper>
   );
 }
