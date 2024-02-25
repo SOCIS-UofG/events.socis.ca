@@ -4,8 +4,10 @@ const config = {
       "https://calendar.google.com/calendar/embed?src=2bd0bc6f74589224539f10fb141b809e2b2ae0863e500225868e3e67620cf677%40group.calendar.google.com&ctz=America%2FToronto",
     suggestionUrl:
       "https://docs.google.com/forms/d/e/1FAIpQLSfSPXRG02mReQ0XXx82Qyl2hubR32LiGUrgOu848EB-jwiCQg/viewform?usp=sf_link",
-    planningQuestionaireUrl: "",
-    sermEventUrl: "",
+    planningQuestionaireUrl:
+      "https://docs.google.com/document/d/1zb9WZz7pkL1VQTCu8zDnfy_aiTfIhHf-O8C7oViRAwk/edit?usp=sharing",
+    eventPlanningUrl:
+      "https://docs.google.com/document/d/1khMBhGCGauBC-xTITrf6jLMCGWaHFQsn4T-1nGtOoBY/edit?usp=sharing",
     default: {
       name: "Event",
       description: "Empty event description",

@@ -108,8 +108,8 @@ function Components(): JSX.Element {
         </h1>
         <p className="mx-auto  max-w-2xl text-center text-white">
           The following members have been approved to submit SE&RM events. You
-          can also download the event planning questionnaire and submit a SE&RM
-          event proposal.
+          can also download the event planning questionnaire and the event
+          planning steps.
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-4">
@@ -119,11 +119,11 @@ function Components(): JSX.Element {
         >
           Download the Event Planning Questionnaire
         </LinkButton>
-        <LinkButton href={config.event.sermEventUrl} className="text-white">
-          Submit a SE&RM Event Proposal
+        <LinkButton href={config.event.eventPlanningUrl} className="text-white">
+          Event Planning Steps
         </LinkButton>
       </div>
-      <div className=" flex flex-wrap items-center justify-center gap-10">
+      <div className="flex flex-wrap items-center justify-center gap-10">
         {users.map((user) => {
           if (user.roles.includes(Role.SERM_APPROVED)) {
             return (
