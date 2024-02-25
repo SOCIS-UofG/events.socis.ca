@@ -55,7 +55,7 @@ export default function EventCard(props: EventCardProps): JSX.Element {
       {/**
        * EVENT DESCRIPTION
        *
-       * The description of the event.
+       * The description of the event
        */}
       <p className="mt-1 line-clamp-3 h-16 w-full overflow-hidden text-sm font-thin text-white">
         {/**
