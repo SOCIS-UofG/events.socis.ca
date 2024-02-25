@@ -6,6 +6,8 @@ import { Permission } from "@/types/permission";
 import { type Event } from "@/types/event";
 import config from "@/lib/config/event.config";
 import { v4 as uuidv4 } from "uuid";
+import uploadFile from "./utils/upload";
+import { del } from "@vercel/blob";
 
 export const eventsRouter = {
   /**
@@ -53,6 +55,24 @@ export const eventsRouter = {
         return { success: false, event: null };
       }
 
+      // Mutable image variable
+      let eventImage = input.event.image;
+
+      /**
+       * Upload the image to the blob storage
+       */
+      if (eventImage) {
+        const blob = await uploadFile(
+          null /* denotes no previous image */,
+          eventImage,
+        );
+        if (!blob) {
+          return { message: "Internal error", user: null, success: false };
+        }
+
+        eventImage = blob.url;
+      }
+
       const event = input.event as Event;
       const generatedId = event.id || uuidv4();
       const newEvent = await Prisma.createEvent({
@@ -61,10 +81,10 @@ export const eventsRouter = {
         description: event.description,
         date: event.date,
         location: event.location,
-        image: event.image || config.event.default.image,
-        perks: event.perks || config.event.default.perks,
-        rsvps: event.rsvps || config.event.default.rsvps,
-        pinned: event.pinned || config.event.default.pinned,
+        image: eventImage ?? config.event.default.image,
+        perks: event.perks ?? config.event.default.perks,
+        rsvps: event.rsvps ?? config.event.default.rsvps,
+        pinned: event.pinned ?? config.event.default.pinned,
       });
 
       if (!newEvent) {
@@ -98,12 +118,29 @@ export const eventsRouter = {
         return { success: false, event: null };
       }
 
-      const event = await Prisma.deleteEventById(input.id);
+      // if the event is not found, return null
+      const event = await Prisma.getEventById(input.id);
       if (!event) {
         return { success: false, event: null };
       }
 
-      return { success: true, event };
+      // delete the event image if it is not the default image
+      if (event.image && event.image !== config.event.default.image) {
+        try {
+          await del(event.image);
+        } catch (e) {
+          console.log(e);
+
+          return { success: false, event: null };
+        }
+      }
+
+      const deletedEvent = await Prisma.deleteEventById(input.id);
+      if (!deletedEvent) {
+        return { success: false, event: null };
+      }
+
+      return { success: true, event: deletedEvent };
     }),
 
   /**
@@ -152,16 +189,37 @@ export const eventsRouter = {
         return { success: false, event: null };
       }
 
+      // get the event
+      const prevEvent = await Prisma.getEventById(input.event.id);
+      if (!prevEvent) {
+        return { success: false, event: null };
+      }
+
+      // Mutable image variable
+      let eventImage = input.event.image;
+
+      /**
+       * Upload the image to the blob storage
+       */
+      if (eventImage) {
+        const blob = await uploadFile(prevEvent.image, eventImage);
+        if (!blob) {
+          return { message: "Internal error", user: null, success: false };
+        }
+
+        eventImage = blob.url;
+      }
+
       const event = input.event as Event;
       const updatedEvent = await Prisma.updateEventById(event.id, {
         name: event.name,
         description: event.description,
         date: event.date,
         location: event.location,
-        image: event.image || config.event.default.image,
-        perks: event.perks || config.event.default.perks,
-        rsvps: event.rsvps || config.event.default.rsvps,
-        pinned: event.pinned || config.event.default.pinned,
+        image: eventImage ?? config.event.default.image,
+        perks: event.perks ?? config.event.default.perks,
+        rsvps: event.rsvps ?? config.event.default.rsvps,
+        pinned: event.pinned ?? config.event.default.pinned,
       } as Event);
 
       if (!updatedEvent) {

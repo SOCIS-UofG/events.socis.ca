@@ -294,8 +294,37 @@ function Components(): JSX.Element {
         />
 
         {/**
-         * TODO: Add event image (banner) upload
+         * EVENT IMAGE
+         *
+         * The user can add an image to the event.
          */}
+        <label className="mb-2 mt-5 text-white">Event Image</label>
+        <input
+          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none"
+          placeholder="Image"
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            if (!e.target.files) {
+              return;
+            }
+
+            const file = e.target.files[0];
+            if (!file) {
+              return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onloadend = () => {
+              const image = reader.result as string;
+
+              setEvent({ ...event, image });
+            };
+
+            reader.readAsDataURL(file);
+          }}
+        />
 
         {/**
          * PIN EVENT
