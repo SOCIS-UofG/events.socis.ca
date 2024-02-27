@@ -13,15 +13,13 @@ export const eventsRouter = {
   /**
    * Add an event to the events database
    *
-   * @param input - The input object
-   * @param input.event - The event to add
+   * @returns The new event
    */
   createEvent: publicProcedure
     .input(
       z.object({
         accessToken: z.string(),
         event: z.object({
-          id: z.string().optional(),
           name: z
             .string()
             .max(config.event.max.name)
@@ -74,9 +72,8 @@ export const eventsRouter = {
       }
 
       const event = input.event as Event;
-      const generatedId = event.id || uuidv4();
       const newEvent = await Prisma.createEvent({
-        id: generatedId,
+        id: uuidv4(),
         name: event.name,
         description: event.description,
         date: event.date,
@@ -97,8 +94,6 @@ export const eventsRouter = {
   /**
    * Delete an event from the events database
    *
-   * @param input - The input object
-   * @param input.id - The id of the event to delete
    * @returns The deleted event
    */
   deleteEvent: publicProcedure
@@ -146,8 +141,6 @@ export const eventsRouter = {
   /**
    * Update an event in the events database
    *
-   * @param input - The input object
-   * @param input.event - The event to update
    * @returns The updated event
    */
   updateEvent: publicProcedure
@@ -243,8 +236,6 @@ export const eventsRouter = {
   /**
    * Get an event by its id
    *
-   * @param input - The input object
-   * @param input.id - The id of the event to get
    * @returns The event
    */
   getEvent: publicProcedure

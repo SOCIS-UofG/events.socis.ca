@@ -14,8 +14,8 @@ const config = {
       date: "No date provided",
       location: "No location provided",
       image: "/images/default-event-image.png",
-      perks: [],
-      rsvps: [],
+      perks: [] as string[],
+      rsvps: [] as string[],
       pinned: false,
     },
     max: {
