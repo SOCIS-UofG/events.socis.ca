@@ -413,27 +413,31 @@ function Components(): JSX.Element {
           </Checkbox>
         </div>
 
-        <Button type="submit">Update Event</Button>
-        <LinkButton href="/">Cancel</LinkButton>
+        <div className="mt-10 flex w-full flex-wrap items-start justify-start gap-4">
+          <Button type="submit">Update Event</Button>
+          <LinkButton href="/">Cancel</LinkButton>
+        </div>
       </form>
 
-      {editStatus === FormStatus.SUCCESS && (
-        <SuccessMessage>
-          <p>Event updated successfully!</p>
-        </SuccessMessage>
-      )}
+      <div className="mt-5 flex flex-col items-center justify-center gap-5">
+        {editStatus === FormStatus.SUCCESS && (
+          <SuccessMessage>
+            <p>Event updated successfully!</p>
+          </SuccessMessage>
+        )}
 
-      {editStatus === FormStatus.ERROR && (
-        <ErrorMessage>
-          <p>There was an error creating your event.</p>
-        </ErrorMessage>
-      )}
+        {editStatus === FormStatus.ERROR && (
+          <ErrorMessage>
+            <p>There was an error creating your event.</p>
+          </ErrorMessage>
+        )}
 
-      {editStatus === FormStatus.EMPTY_FIELDS && (
-        <ErrorMessage>
-          <p>Make sure all fields are filled in.</p>
-        </ErrorMessage>
-      )}
+        {editStatus === FormStatus.EMPTY_FIELDS && (
+          <ErrorMessage>
+            <p>Make sure all fields are filled in.</p>
+          </ErrorMessage>
+        )}
+      </div>
     </MainWrapper>
   );
 }

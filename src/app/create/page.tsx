@@ -21,7 +21,6 @@ import { isValidEventData } from "@/lib/utils/events";
 import { Checkbox } from "@nextui-org/react";
 import config from "@/lib/config/event.config";
 import { trpc } from "@/lib/trpc/client";
-import { v4 as uuidv4 } from "uuid";
 
 /**
  * The status of the form.
@@ -59,15 +58,14 @@ export default function EventCreationPage(): JSX.Element {
  * @returns JSX.Element
  */
 function Components(): JSX.Element {
-  const { data: session, status: sessionStatus } = useSession();
-  const { mutateAsync: createEvent } = trpc.createEvent.useMutation();
   const router = useRouter();
 
+  const { data: session, status: sessionStatus } = useSession();
+  const { mutateAsync: createEvent, status: trpcStatus } =
+    trpc.createEvent.useMutation();
+
   const [creationStatus, setCreationStatus] = useState(FormStatus.IDLE);
-  const [event, setEvent] = useState<Event>({
-    id: uuidv4(),
-    ...config.event.default,
-  });
+  const [event, setEvent] = useState<Event>(config.event.default as Event);
 
   /**
    * If the event is being created, the user is not authenticated, or the
@@ -164,13 +162,20 @@ function Components(): JSX.Element {
      * return an error message. This is so that empty events are not created.
      */
     if (!isValidEventData(event)) {
-      return setCreationStatus(FormStatus.EMPTY_FIELDS); // setCreationStatus: void
+      setCreationStatus(FormStatus.EMPTY_FIELDS);
+
+      return;
     }
 
     /**
      * Create the event using the API.
      */
     const res = await createEvent({ accessToken: session.user.secret, event });
+    if (trpcStatus === "error") {
+      setCreationStatus(FormStatus.ERROR);
+
+      return;
+    }
 
     /**
      * If the event was successfully created, then set the status to success.
@@ -332,66 +337,68 @@ function Components(): JSX.Element {
          * The user can pin the event to the top of the events page.
          * This will make the event appear at the top of the events page.
          */}
-        <div className="flex flex-wrap gap-2">
-          <Checkbox
-            className="mt-5 text-white"
-            isSelected={event.pinned}
-            onChange={(e) => setEvent({ ...event, pinned: e.target.checked })}
-          >
-            Pin Event
-          </Checkbox>
+        <Checkbox
+          className="mt-5"
+          isSelected={event.pinned}
+          onChange={(e) => setEvent({ ...event, pinned: e.target.checked })}
+        >
+          <p className="text-white">Pin Event</p>
+        </Checkbox>
+
+        <div className="mt-5 flex w-full flex-wrap items-center justify-center gap-5">
+          {/**
+           * CREATE EVENT
+           *
+           * Once the user is finished creating the event, they can submit it.
+           * This will send an http request to the API and create the event.
+           * If the user hasn't filled in all the fields, then the event will not be created
+           * and an error message will be displayed.
+           */}
+          <Button type="submit">Create Event</Button>
+
+          {/**
+           * If the user doesn't want to create the event, then they can cancel.
+           *
+           * This will just redirect them back to the events page.
+           */}
+          <LinkButton href="/">Cancel</LinkButton>
         </div>
-
-        {/**
-         * CREATE EVENT
-         *
-         * Once the user is finished creating the event, they can submit it.
-         * This will send an http request to the API and create the event.
-         * If the user hasn't filled in all the fields, then the event will not be created
-         * and an error message will be displayed.
-         */}
-        <Button type="submit">Create Event</Button>
-
-        {/**
-         * If the user doesn't want to create the event, then they can cancel.
-         *
-         * This will just redirect them back to the events page.
-         */}
-        <LinkButton href="/">Cancel</LinkButton>
       </form>
 
-      {/**
-       * If the event was successfully created, then display a success message.
-       *
-       * This will appear before the user is redirected to the /next-steps page.
-       */}
-      {creationStatus === FormStatus.SUCCESS && (
-        <SuccessMessage>
-          <p>Event created successfully!</p>
-        </SuccessMessage>
-      )}
+      <div className="mt-5 flex w-full flex-col items-center justify-center gap-5">
+        {/**
+         * If the event was successfully created, then display a success message.
+         *
+         * This will appear before the user is redirected to the /next-steps page.
+         */}
+        {creationStatus === FormStatus.SUCCESS && (
+          <SuccessMessage>
+            <p>Event created successfully!</p>
+          </SuccessMessage>
+        )}
 
-      {/**
-       * If the event was not successfully created, then display an error message.
-       *
-       * The user will have the chance to input the data again.
-       */}
-      {creationStatus === FormStatus.ERROR && (
-        <ErrorMessage>
-          <p>There was an error creating your event.</p>
-        </ErrorMessage>
-      )}
+        {/**
+         * If the event was not successfully created, then display an error message.
+         *
+         * The user will have the chance to input the data again.
+         */}
+        {creationStatus === FormStatus.ERROR && (
+          <ErrorMessage>
+            <p>There was an error creating your event.</p>
+          </ErrorMessage>
+        )}
 
-      {/**
-       * If the user hasn't filled in all the fields, then display an error message.
-       *
-       * The user will have the chance to input the data again.
-       */}
-      {creationStatus === FormStatus.EMPTY_FIELDS && (
-        <ErrorMessage>
-          <p>Make sure all fields are filled in.</p>
-        </ErrorMessage>
-      )}
+        {/**
+         * If the user hasn't filled in all the fields, then display an error message.
+         *
+         * The user will have the chance to input the data again.
+         */}
+        {creationStatus === FormStatus.EMPTY_FIELDS && (
+          <ErrorMessage>
+            <p>Make sure all fields are filled in.</p>
+          </ErrorMessage>
+        )}
+      </div>
     </MainWrapper>
   );
 }
