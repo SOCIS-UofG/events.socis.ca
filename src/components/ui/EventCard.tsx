@@ -46,7 +46,7 @@ export default function EventCard(props: EventCardProps): JSX.Element {
     props.user && hasPermissions(props.user, [Permission.EDIT_EVENT]);
 
   const { mutateAsync: deleteEvent } = trpc.deleteEvent.useMutation();
-  const { onOpen, onClose } = useDisclosure();
+  const { onOpen, onClose, isOpen, onOpenChange } = useDisclosure();
   const [status, setStatus] = useState<Status>("idle");
 
   /**
@@ -89,7 +89,7 @@ export default function EventCard(props: EventCardProps): JSX.Element {
            *
            * The description of the event
            */}
-          <p className="line-clamp-3 h-40 w-full overflow-hidden text-sm font-thin text-white">
+          <p className="line-clamp-3 h-32 w-full overflow-hidden text-sm font-thin text-white">
             {/**
              * Show an ellipsis if the description is too long.
              */}
@@ -129,21 +129,25 @@ export default function EventCard(props: EventCardProps): JSX.Element {
            * Edit and Delete buttons for the event.
            */}
           {props.user && (
-            <div className="flex h-fit w-full flex-wrap gap-2">
-              {!CAN_EDIT_EVENTS && (
+            <div className="mt-2 flex h-fit w-full flex-wrap gap-2">
+              {CAN_EDIT_EVENTS && (
                 <Button
                   as={Link}
                   color="default"
+                  size="sm"
+                  variant="bordered"
                   className="btn"
-                  href={`/events/${props.event.id}/edit`}
+                  href={`/edit/${props.event.id}`}
                 >
                   Edit
                 </Button>
               )}
 
-              {!CAN_DELETE_EVENTS && (
+              {CAN_DELETE_EVENTS && (
                 <Button
                   color="danger"
+                  size="sm"
+                  variant="bordered"
                   className="btn"
                   onClick={onOpen}
                   disabled={status === "loading"}
@@ -161,7 +165,7 @@ export default function EventCard(props: EventCardProps): JSX.Element {
        *
        * The modal for deleting the event.
        */}
-      <Modal onClose={onClose} size="sm">
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
         <ModalContent>
           <ModalHeader>Delete Event</ModalHeader>
           <ModalBody>
