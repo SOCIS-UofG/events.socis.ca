@@ -81,7 +81,7 @@ function Components(): JSX.Element {
    * Return the main components.
    */
   return (
-    <MainWrapper className="z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-7 p-12 pt-32 lg:pt-12">
+    <MainWrapper className="z-40 flex min-h-screen w-screen flex-col items-center justify-start gap-7 p-12 pt-40">
       <div className="flex flex-col items-center justify-center gap-4">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           SE&RM Approved Members
