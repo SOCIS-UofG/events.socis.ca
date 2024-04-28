@@ -353,24 +353,15 @@ function Components(): JSX.Element {
           <p className="text-white">Pin Event</p>
         </Checkbox>
 
-        <div className="mt-5 flex w-full flex-wrap items-center justify-center gap-2">
-          {/**
-           * CREATE EVENT
-           *
-           * Once the user is finished creating the event, they can submit it.
-           * This will send an http request to the API and create the event.
-           * If the user hasn't filled in all the fields, then the event will not be created
-           * and an error message will be displayed.
-           */}
+        {/**
+         * CREATE EVENT BUTTONS
+         *
+         * The user can create the event or cancel the creation.
+         */}
+        <div className="flex w-full flex-col items-center justify-center gap-2 sm:flex-row">
           <Button className="btn w-full" color="primary" type="submit">
             Create Event
           </Button>
-
-          {/**
-           * If the user doesn't want to create the event, then they can cancel.
-           *
-           * This will just redirect them back to the events page.
-           */}
           <Button
             className="btn w-full lg:w-1/2"
             as={Link}

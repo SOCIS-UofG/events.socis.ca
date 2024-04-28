@@ -435,11 +435,16 @@ function Components(): JSX.Element {
           </Checkbox>
         </div>
 
-        <div className="mt-5 flex w-full flex-row items-start justify-start gap-2">
+        <div className="flex w-full flex-col items-center justify-center gap-2 sm:flex-row">
           <Button className="btn w-full" color="primary" type="submit">
             Update Event
           </Button>
-          <Button className="btn w-1/2" as={Link} color="default" href="/">
+          <Button
+            className="btn w-full lg:w-1/2"
+            as={Link}
+            color="default"
+            href="/"
+          >
             Cancel
           </Button>
         </div>
