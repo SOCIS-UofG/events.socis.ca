@@ -8,7 +8,14 @@ import { Permission } from "@/types/global/permission";
 import { useRouter } from "next/navigation";
 import { type Event } from "@/types/global/event";
 import { isValidEventData } from "@/lib/utils/events";
-import { Button, Checkbox, Input, Spinner, Textarea } from "@nextui-org/react";
+import {
+  Button,
+  Checkbox,
+  Input,
+  NextUIProvider,
+  Spinner,
+  Textarea,
+} from "@nextui-org/react";
 import config from "@/lib/config/event.config";
 import { trpc } from "@/lib/trpc/client";
 import { type FormStatus } from "@/types";
@@ -24,14 +31,14 @@ import Link from "next/link";
  */
 export default function EventCreationPage(): JSX.Element {
   return (
-    <>
+    <NextUIProvider>
       <Navbar />
       <CustomCursor />
 
       <SessionProvider>
         <Components />
       </SessionProvider>
-    </>
+    </NextUIProvider>
   );
 }
 

@@ -10,7 +10,7 @@ import Navbar from "@/components/ui/global/Navbar";
 import CustomCursor from "@/components/ui/global/CustomCursor";
 import MainWrapper from "@/components/ui/global/MainWrapper";
 import { type Status } from "@/types";
-import { Button, Spinner } from "@nextui-org/react";
+import { Button, NextUIProvider, Spinner } from "@nextui-org/react";
 import Link from "next/link";
 
 /**
@@ -20,11 +20,11 @@ import Link from "next/link";
  */
 export default function NextStepsPage(): JSX.Element {
   return (
-    <>
+    <NextUIProvider>
       <Navbar />
       <CustomCursor />
       <Components />
-    </>
+    </NextUIProvider>
   );
 }
 
@@ -92,6 +92,7 @@ function Components(): JSX.Element {
           planning steps.
         </p>
       </div>
+
       <div className="flex flex-wrap items-center justify-center gap-4">
         <Button
           className="btn"
@@ -118,15 +119,21 @@ function Components(): JSX.Element {
           }
 
           return (
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="flex h-80 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-neutral-700/50 bg-secondary p-4 sm:max-w-64">
               <Image
-                className="h-28 w-28 rounded-full"
                 src={user.image}
-                alt={user.name}
-                width={128}
-                height={128}
+                alt={`Image of ${user.name}`}
+                className="h-28 w-28 rounded-full"
+                width={500}
+                height={500}
               />
-              <p className="text-white">{user.name}</p>
+
+              <div className="flex flex-col items-center justify-center text-center">
+                <h1 className="text-xl font-semibold text-white">
+                  {user.name}
+                </h1>
+                <p className="text-sm font-thin text-white">{user.email}</p>
+              </div>
             </div>
           );
         })}

@@ -9,7 +9,14 @@ import { type Event } from "@/types/global/event";
 import { type Session } from "next-auth";
 import config from "@/lib/config/event.config";
 import { isValidEventData } from "@/lib/utils/events";
-import { Button, Checkbox, Input, Spinner, Textarea } from "@nextui-org/react";
+import {
+  Button,
+  Checkbox,
+  Input,
+  NextUIProvider,
+  Spinner,
+  Textarea,
+} from "@nextui-org/react";
 import { trpc } from "@/lib/trpc/client";
 import { hasPermissions } from "@/lib/utils/permissions";
 import { Permission } from "@/types/global/permission";
@@ -25,14 +32,14 @@ import MainWrapper from "@/components/ui/global/MainWrapper";
  */
 export default function UpdateEventsPage(): JSX.Element {
   return (
-    <>
+    <NextUIProvider>
       <Navbar />
       <CustomCursor />
 
       <SessionProvider>
         <Components />
       </SessionProvider>
-    </>
+    </NextUIProvider>
   );
 }
 
