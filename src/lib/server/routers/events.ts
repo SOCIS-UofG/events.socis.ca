@@ -3,7 +3,7 @@ import { publicProcedure } from "../trpc";
 import { z } from "zod";
 import { hasPermissions } from "@/lib/utils/permissions";
 import { Permission } from "@/types/global/permission";
-import { type Event } from "@/types/global/event";
+import { type Event } from "@/types/event";
 import config from "@/lib/config/event.config";
 import { v4 as uuidv4 } from "uuid";
 import uploadFile from "./utils/upload";

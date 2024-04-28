@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils/cn";
-import { type Event } from "@/types/global/event";
+import { type Event } from "@/types/event";
 import { type User } from "next-auth";
 import { hasPermissions } from "@/lib/utils/permissions";
 import { Permission } from "@/types/global/permission";
@@ -196,8 +196,6 @@ export default function EventCard(props: EventCardProps): JSX.Element {
                   .catch(() => {
                     setStatus("error");
                   });
-
-                setStatus("success");
 
                 onClose();
               }}

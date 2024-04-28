@@ -3,7 +3,7 @@
 import EventCard from "@/components/ui/EventCard";
 import { useEffect, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
-import { type Event } from "@/types/global/event";
+import { type Event } from "@/types/event";
 import { trpc } from "@/lib/trpc/client";
 import config from "@/lib/config/event.config";
 import { Permission } from "@/types/global/permission";
@@ -84,7 +84,7 @@ function Components(): JSX.Element {
    */
   if (sessionStatus === "loading" || status === "loading") {
     return (
-      <MainWrapper className="flex min-h-screen w-screen flex-col items-center justify-center">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center">
         <Spinner size="lg" color="primary" />
       </MainWrapper>
     );

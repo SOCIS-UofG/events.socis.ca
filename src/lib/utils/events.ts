@@ -1,4 +1,4 @@
-import { type Event } from "@/types/global/event";
+import { type Event } from "@/types/event";
 import config from "@/lib/config/event.config";
 
 /**
