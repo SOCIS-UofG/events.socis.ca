@@ -1,4 +1,4 @@
-import { type Permission } from "./permission";
+import { type Permission } from "./global/permission";
 import "next-auth";
 
 declare module "next-auth" {

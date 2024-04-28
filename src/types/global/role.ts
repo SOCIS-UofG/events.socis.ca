@@ -1,5 +1,7 @@
 /**
- * Team member roles
+ * Enum for the different roles that a user can have in the system.
+ *
+ * `MEMBER` - The default role that all users have
  */
 export enum Role {
   MEMBER = "Member",

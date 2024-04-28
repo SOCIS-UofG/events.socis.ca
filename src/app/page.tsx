@@ -1,24 +1,20 @@
 "use client";
 
-import EventCard from "@/components/EventCard";
+import EventCard from "@/components/ui/EventCard";
 import { useEffect, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
-import { type Event } from "@/types/event";
-import {
-  ErrorMessage,
-  MainWrapper,
-  LoadingSpinnerCenter,
-  CustomCursor,
-  Navbar,
-  LinkButton,
-  NavbarTabs,
-  Background,
-} from "socis-components";
+import { type Event } from "@/types/global/event";
 import { trpc } from "@/lib/trpc/client";
 import config from "@/lib/config/event.config";
-import { Permission } from "@/types/permission";
+import { Permission } from "@/types/global/permission";
 import { hasPermissions } from "@/lib/utils/permissions";
-import { NextUIProvider } from "@nextui-org/react";
+import { Button, NextUIProvider, Spinner } from "@nextui-org/react";
+import Navbar from "@/components/ui/global/Navbar";
+import CustomCursor from "@/components/ui/global/CustomCursor";
+import Background from "@/components/ui/global/Background";
+import MainWrapper from "@/components/ui/global/MainWrapper";
+import Link from "next/link";
+import { type Status } from "@/types";
 
 /**
  * Wraps the main components in a session provider for next auth.
@@ -27,17 +23,15 @@ import { NextUIProvider } from "@nextui-org/react";
  */
 export default function EventsPage() {
   return (
-    <>
-      <Navbar underlined={NavbarTabs.EVENTS} />
+    <NextUIProvider>
+      <Navbar />
       <CustomCursor />
-      <Background text={"EVENTS"} animated={false} className="relative z-0" />
+      <Background text={"EVENTS"} animated={false} />
 
-      <NextUIProvider>
-        <SessionProvider>
-          <Components />
-        </SessionProvider>
-      </NextUIProvider>
-    </>
+      <SessionProvider>
+        <Components />
+      </SessionProvider>
+    </NextUIProvider>
   );
 }
 
@@ -49,9 +43,11 @@ export default function EventsPage() {
  */
 function Components(): JSX.Element {
   const { data: session, status: sessionStatus } = useSession();
-  const { mutateAsync: getEvents, status: fetchStatus } =
-    trpc.getAllEvents.useMutation();
+
+  const { mutateAsync: getEvents } = trpc.getAllEvents.useMutation();
+
   const [events, setEvents] = useState<Event[]>([]);
+  const [status, setStatus] = useState<Status>("idle");
 
   /**
    * We need to access the events from the database.
@@ -61,34 +57,35 @@ function Components(): JSX.Element {
      * If the fetch status is not idle, then we don't need to
      * fetch the events again.
      */
-    if (fetchStatus !== "idle") {
+    if (status !== "idle") {
       return;
     }
 
     /**
+     * Set the status to loading.
+     */
+    setStatus("loading");
+
+    /**
      * Fetch the events from the database.
      */
-    getEvents().then((data) => setEvents(data.events));
+    getEvents()
+      .then((res) => {
+        setEvents(res.events);
+        setStatus("success");
+      })
+      .catch(() => {
+        setStatus("error");
+      });
   }, [session]);
 
   /**
    * If the fetch is still in progress, display a loading spinner.
    */
-  if (sessionStatus === "loading" || fetchStatus === "loading") {
-    return <LoadingSpinnerCenter />;
-  }
-
-  /**
-   * If the fetch failed, display an error message.
-   *
-   * TODO: Add a refresh button.
-   */
-  if (fetchStatus === "error") {
+  if (sessionStatus === "loading" || status === "loading") {
     return (
-      <MainWrapper>
-        <ErrorMessage>
-          An error occurred while fetching the events. Please try again later.
-        </ErrorMessage>
+      <MainWrapper className="flex min-h-screen w-screen flex-col items-center justify-center">
+        <Spinner size="lg" color="primary" />
       </MainWrapper>
     );
   }
@@ -146,7 +143,7 @@ function Components(): JSX.Element {
    * Return the main components
    */
   return (
-    <MainWrapper className="fade-in relative items-start justify-start gap-20 px-12 pb-20 pt-36 lg:px-20 lg:pt-40">
+    <MainWrapper className="fade-in relative z-40 flex min-h-screen w-screen flex-col items-start justify-start gap-20 px-12 pb-20 pt-36 lg:px-20 lg:pt-40">
       {/**
        * PINNED EVENTS
        *
@@ -169,7 +166,7 @@ function Components(): JSX.Element {
            * Render the pinned events.
            */}
           <div className="flex w-full flex-wrap items-start justify-start gap-10">
-            {fetchStatus === "success" &&
+            {status === "success" &&
               PINNED_EVENTS.map((event) => (
                 <EventCard key={event.id} user={session?.user} event={event} />
               ))}
@@ -189,18 +186,29 @@ function Components(): JSX.Element {
           <h1 className="text-left text-4xl font-extrabold uppercase text-white sm:text-6xl md:text-7xl lg:text-8xl">
             Upcoming Events
           </h1>
+
           <p className="text-left text-sm font-thin text-white">
             Events that are coming up soon. Get involved by making a suggestion!
           </p>
+
           <div className="flex w-full flex-wrap items-start justify-start gap-4">
-            <LinkButton
+            <Button
+              className="btn"
+              as={Link}
+              color="primary"
               href={CAN_CREATE_EVENTS ? "/create" : config.event.suggestionUrl}
             >
               {CAN_CREATE_EVENTS ? "Create an event" : "Suggest an event"}
-            </LinkButton>
-            <LinkButton href={config.event.calendarUrl}>
+            </Button>
+
+            <Button
+              className="btn"
+              as={Link}
+              color="default"
+              href={config.event.calendarUrl}
+            >
               See Event Calendar
-            </LinkButton>
+            </Button>
           </div>
         </div>
 
@@ -208,7 +216,7 @@ function Components(): JSX.Element {
          * Render the upcoming events.
          */}
         <div className="flex w-full flex-wrap items-start justify-start gap-7">
-          {fetchStatus === "success" &&
+          {status === "success" &&
             UPCOMING_EVENTS.map((event) => (
               <EventCard key={event.id} user={session?.user} event={event} />
             ))}
@@ -237,7 +245,7 @@ function Components(): JSX.Element {
            * Render the past events.
            */}
           <div className="flex w-full flex-wrap items-start justify-start gap-7">
-            {fetchStatus === "success" &&
+            {status === "success" &&
               PAST_EVENTS.map((event) => (
                 <EventCard key={event.id} user={session?.user} event={event} />
               ))}

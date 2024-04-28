@@ -1,16 +1,5 @@
 /**
- * An event
- *
- * `id` - The event's ID
- * `createdAt` - The event's creation date
- * `updatedAt` - The event's last update date
- * `name` - The event's name
- * `description` - The event's description
- * `date` - The event's date
- * `location` - The event's location
- * `image` - The event's image
- * `perks` - The event's perks
- * `rsvps` - The event's RSVPs
+ * Event type
  */
 export interface Event {
   /**

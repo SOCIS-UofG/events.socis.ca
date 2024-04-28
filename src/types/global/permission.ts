@@ -2,9 +2,6 @@
  * Permissions that an user can inherit
  *
  * `DEFAULT` - The default permission that all users have
- * `CREATE_EVENT` - The permission to create an event
- * `EDIT_EVENT` - The permission to edit an event
- * `DELETE_EVENT` - The permission to delete an event
  * `ADMIN` - The permission to do anything
  */
 export enum Permission {
