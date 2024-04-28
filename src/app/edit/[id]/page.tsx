@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
-import { type Event } from "@/types/global/event";
+import { type Event } from "@/types/event";
 import { type Session } from "next-auth";
 import config from "@/lib/config/event.config";
 import { isValidEventData } from "@/lib/utils/events";
@@ -262,12 +262,12 @@ function Components(): JSX.Element {
   }
 
   return (
-    <MainWrapper className="flex min-h-screen w-screen flex-col items-center justify-center p-10 pt-20 lg:p-20 lg:pt-44">
+    <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-5 p-10 pt-20 lg:p-20 lg:pt-44">
       <form
-        className="flex w-full flex-col"
+        className="flex w-full flex-col items-start justify-start gap-5"
         onSubmit={async (e) => onSubmit(e, event, session)}
       >
-        <h1 className="mb-7 text-5xl font-normal uppercase text-white md:text-7xl">
+        <h1 className="mb-2 text-5xl font-normal uppercase text-white md:text-7xl">
           Update Event
         </h1>
 
@@ -276,50 +276,58 @@ function Components(): JSX.Element {
          *
          * The user can set the name of the event. This will be displayed on the event page.
          */}
-        <label className="mb-2 text-white">Event Name</label>
-        <Input
-          className="w-full"
-          maxLength={config.event.max.name}
-          minLength={config.event.min.name}
-          label="Name"
-          placeholder="Name"
-          type="text"
-          value={event.name}
-          onChange={(e) => setEvent({ ...event, name: e.target.value })}
-        />
+        <div className="flex w-full flex-col items-start justify-start gap-2">
+          <label className="text-white">Event Name</label>
+          <Input
+            className="w-full"
+            maxLength={config.event.max.name}
+            minLength={config.event.min.name}
+            label="Name"
+            placeholder="Name"
+            type="text"
+            value={event.name}
+            onChange={(e) => setEvent({ ...event, name: e.target.value })}
+          />
+        </div>
 
         {/**
          * EVENT DESCRIPTION
          *
          * The user can set the description of the event. This will be displayed on the event page.
          */}
-        <label className="mb-2 mt-5 text-white">Event Description</label>
-        <Textarea
-          className="w-full"
-          maxLength={config.event.max.description}
-          minLength={config.event.min.description}
-          label="Description"
-          placeholder="Description"
-          value={event.description}
-          onChange={(e) => setEvent({ ...event, description: e.target.value })}
-        />
+        <div className="flex w-full flex-col items-start justify-start gap-2">
+          <label className="text-white">Event Description</label>
+          <Textarea
+            className="w-full"
+            maxLength={config.event.max.description}
+            minLength={config.event.min.description}
+            label="Description"
+            placeholder="Description"
+            value={event.description}
+            onChange={(e) =>
+              setEvent({ ...event, description: e.target.value })
+            }
+          />
+        </div>
 
         {/**
          * EVENT LOCATION
          *
          * The user can set the location of the event. This will be displayed on the event page.
          */}
-        <label className="mb-2 mt-5 text-white">Event Location</label>
-        <Input
-          className="w-full"
-          maxLength={config.event.max.location}
-          minLength={config.event.min.location}
-          label="Location"
-          placeholder="Location"
-          type="text"
-          value={event.location}
-          onChange={(e) => setEvent({ ...event, location: e.target.value })}
-        />
+        <div className="flex w-full flex-col items-start justify-start gap-2">
+          <label className="text-white">Event Location</label>
+          <Input
+            className="w-full"
+            maxLength={config.event.max.location}
+            minLength={config.event.min.location}
+            label="Location"
+            placeholder="Location"
+            type="text"
+            value={event.location}
+            onChange={(e) => setEvent({ ...event, location: e.target.value })}
+          />
+        </div>
 
         {/**
          * EVENT DATE
@@ -327,17 +335,19 @@ function Components(): JSX.Element {
          * The user can set the date of the event. This will be displayed on the event page.
          * The event date is not validated and is a string -- the user can enter anything.
          */}
-        <label className="mb-2 mt-5 text-white">Event Date</label>
-        <Input
-          className="w-full"
-          maxLength={config.event.max.date}
-          minLength={config.event.min.date}
-          label="Date"
-          placeholder="Date"
-          type="date"
-          value={event.date}
-          onChange={(e) => setEvent({ ...event, date: e.target.value })}
-        />
+        <div className="flex w-full flex-col items-start justify-start gap-2">
+          <label className="text-white">Event Date</label>
+          <Input
+            className="w-full"
+            maxLength={config.event.max.date}
+            minLength={config.event.min.date}
+            label="Date"
+            placeholder="Date"
+            type="date"
+            value={event.date}
+            onChange={(e) => setEvent({ ...event, date: e.target.value })}
+          />
+        </div>
 
         {/**
          * EVENT PERKS
@@ -345,63 +355,69 @@ function Components(): JSX.Element {
          * The user can add perks to the event. These perks will be displayed
          * on the event page.
          */}
-        <label className="mb-2 mt-5 text-white">Event Perks</label>
-        <Input
-          className="w-full"
-          maxLength={config.event.max.perksInput}
-          minLength={config.event.min.perks}
-          label="Perks"
-          placeholder="Perks (Seperate by comma)"
-          type="text"
-          value={event.perks.join(",")}
-          onChange={(e) => {
-            const perks = e.target.value.split(",").map((perk) => perk.trim());
+        <div className="flex w-full flex-col items-start justify-start gap-2">
+          <label className="text-white">Event Perks</label>
+          <Input
+            className="w-full"
+            maxLength={config.event.max.perksInput}
+            minLength={config.event.min.perks}
+            label="Perks"
+            placeholder="Perks (Seperate by comma)"
+            type="text"
+            value={event.perks.join(",")}
+            onChange={(e) => {
+              const perks = e.target.value
+                .split(",")
+                .map((perk) => perk.trim());
 
-            setEvent({
-              ...event,
-              perks: perks.slice(0, config.event.max.perks),
-            });
-          }}
-        />
+              setEvent({
+                ...event,
+                perks: perks.slice(0, config.event.max.perks),
+              });
+            }}
+          />
+        </div>
 
         {/**
          * EVENT IMAGE
          *
          * The user can set the image of the event. This will be displayed on the event page.
          */}
-        <label className="mb-2 mt-5 text-white">Event Image</label>
-        <Input
-          className="w-full"
-          placeholder="Image"
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            if (!e.target.files) {
-              return;
-            }
+        <div className="flex w-full flex-col items-start justify-start gap-2">
+          <label className="text-white">Event Image</label>
+          <Input
+            className="w-full"
+            placeholder="Image"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (!e.target.files) {
+                return;
+              }
 
-            const file = e.target.files[0];
-            if (!file) {
-              return;
-            }
+              const file = e.target.files[0];
+              if (!file) {
+                return;
+              }
 
-            // verify image is less than 5mb
-            if (file.size > 5 * 1024 * 1024) {
-              alert("Image must be less than 5mb");
-              return;
-            }
+              // verify image is less than 5mb
+              if (file.size > 5 * 1024 * 1024) {
+                alert("Image must be less than 5mb");
+                return;
+              }
 
-            const reader = new FileReader();
+              const reader = new FileReader();
 
-            reader.onloadend = () => {
-              const image = reader.result as string;
+              reader.onloadend = () => {
+                const image = reader.result as string;
 
-              setEvent({ ...event, image });
-            };
+                setEvent({ ...event, image });
+              };
 
-            reader.readAsDataURL(file);
-          }}
-        />
+              reader.readAsDataURL(file);
+            }}
+          />
+        </div>
 
         {/**
          * PIN EVENT
@@ -411,7 +427,7 @@ function Components(): JSX.Element {
          */}
         <div className="flex flex-wrap gap-2">
           <Checkbox
-            className="mt-5 text-white"
+            className="text-white"
             isSelected={event.pinned}
             onChange={(e) => setEvent({ ...event, pinned: e.target.checked })}
           >
@@ -419,7 +435,7 @@ function Components(): JSX.Element {
           </Checkbox>
         </div>
 
-        <div className="mt-10 flex w-full flex-row items-start justify-start gap-4">
+        <div className="mt-5 flex w-full flex-row items-start justify-start gap-2">
           <Button className="btn w-full" color="primary" type="submit">
             Update Event
           </Button>
