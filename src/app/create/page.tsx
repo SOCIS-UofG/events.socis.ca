@@ -299,6 +299,12 @@ function Components(): JSX.Element {
               return;
             }
 
+            // verify image is less than 5mb
+            if (file.size > 5 * 1024 * 1024) {
+              alert("Image must be less than 5mb");
+              return;
+            }
+
             const reader = new FileReader();
 
             reader.onloadend = () => {

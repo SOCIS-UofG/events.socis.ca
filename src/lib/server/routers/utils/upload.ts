@@ -7,6 +7,12 @@ export default async function uploadFile(
   existingFile: string | null,
   file: string,
 ): Promise<PutBlobResult | null> {
+  // verify file size is less than 5MB
+  const fileSize = Buffer.byteLength(file, "base64");
+  if (fileSize > 5 * 1024 * 1024) {
+    return null;
+  }
+
   try {
     /**
      * Delete the old file if it exists

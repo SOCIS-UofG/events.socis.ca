@@ -57,7 +57,7 @@ export default function EventCard(props: EventCardProps): JSX.Element {
       <div
         {...props}
         className={cn(
-          "btn relative flex h-fit w-96 flex-col items-start justify-start rounded-lg border border-primary bg-transparent p-6 duration-300 ease-in-out",
+          "btn relative flex h-80 min-h-fit w-full flex-col items-start justify-start rounded-xl border-2 border-neutral-700/60 bg-secondary p-6 duration-300 ease-in-out sm:max-w-64 md:max-w-72",
           props.className,
         )}
       >
@@ -71,7 +71,7 @@ export default function EventCard(props: EventCardProps): JSX.Element {
           alt={props.event.name}
           width={400}
           height={200}
-          className="absolute left-0 top-0 z-0 h-full w-full rounded-lg object-cover brightness-[0.15]"
+          className="absolute left-0 top-0 z-0 h-full w-full rounded-xl object-cover brightness-[0.25]"
         />
 
         <div className="z-10 flex h-full w-full flex-col items-start justify-start gap-1">
@@ -89,7 +89,7 @@ export default function EventCard(props: EventCardProps): JSX.Element {
            *
            * The description of the event
            */}
-          <p className="line-clamp-3 h-16 w-full overflow-hidden text-sm font-thin text-white">
+          <p className="line-clamp-3 h-40 w-full overflow-hidden text-sm font-thin text-white">
             {/**
              * Show an ellipsis if the description is too long.
              */}
