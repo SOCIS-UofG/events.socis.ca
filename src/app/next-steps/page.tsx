@@ -10,7 +10,7 @@ import Navbar from "@/components/ui/global/Navbar";
 import CustomCursor from "@/components/ui/global/CustomCursor";
 import MainWrapper from "@/components/ui/global/MainWrapper";
 import { type Status } from "@/types";
-import { Button, Spinner } from "@nextui-org/react";
+import { Button, NextUIProvider, Spinner } from "@nextui-org/react";
 import Link from "next/link";
 
 /**
@@ -20,11 +20,11 @@ import Link from "next/link";
  */
 export default function NextStepsPage(): JSX.Element {
   return (
-    <>
+    <NextUIProvider>
       <Navbar />
       <CustomCursor />
       <Components />
-    </>
+    </NextUIProvider>
   );
 }
 
@@ -81,7 +81,7 @@ function Components(): JSX.Element {
    * Return the main components.
    */
   return (
-    <MainWrapper className="z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-7 p-12">
+    <MainWrapper className="z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-7 p-12 pt-32 lg:pt-12">
       <div className="flex flex-col items-center justify-center gap-4">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           SE&RM Approved Members
@@ -92,6 +92,7 @@ function Components(): JSX.Element {
           planning steps.
         </p>
       </div>
+
       <div className="flex flex-wrap items-center justify-center gap-4">
         <Button
           className="btn"
@@ -111,22 +112,31 @@ function Components(): JSX.Element {
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-10">
+      <div className="flex w-full flex-wrap items-center justify-center gap-10">
         {users.map((user) => {
           if (!user.roles.includes(Role.SERM_APPROVED)) {
-            return null;
+            return <></>;
           }
 
           return (
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="flex h-72 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-neutral-700/50 bg-secondary p-4 sm:max-w-56">
               <Image
-                className="h-28 w-28 rounded-full"
                 src={user.image}
-                alt={user.name}
-                width={128}
-                height={128}
+                alt={`Image of ${user.name}`}
+                className="h-28 w-28 rounded-full"
+                width={500}
+                height={500}
               />
-              <p className="text-white">{user.name}</p>
+
+              <div className="flex flex-col items-center justify-center text-center">
+                <h1 className="text-xl font-semibold text-white">
+                  {user.name}
+                </h1>
+                <p className="text-sm font-thin text-white">{user.email}</p>
+                <p className="mt-4 w-fit rounded-md border border-primary bg-emerald-950/50 px-2 py-1 text-xs font-thin text-white">
+                  SE&RM Approved
+                </p>
+              </div>
             </div>
           );
         })}
