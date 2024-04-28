@@ -115,7 +115,7 @@ function Components(): JSX.Element {
       <div className="flex flex-wrap items-center justify-center gap-10">
         {users.map((user) => {
           if (!user.roles.includes(Role.SERM_APPROVED)) {
-            return null;
+            return <></>;
           }
 
           return (
