@@ -81,7 +81,7 @@ function Components(): JSX.Element {
    * Return the main components.
    */
   return (
-    <MainWrapper className="z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-7 p-12">
+    <MainWrapper className="z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-7 p-12 pt-32 lg:pt-12">
       <div className="flex flex-col items-center justify-center gap-4">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           SE&RM Approved Members
@@ -112,14 +112,21 @@ function Components(): JSX.Element {
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-10">
-        {users.map((user) => {
+      <div className="flex w-full flex-wrap items-center justify-center gap-10">
+        {[
+          {
+            name: "John Doe",
+            email: "test",
+            roles: [Role.SERM_APPROVED],
+            image: "",
+          } as User,
+        ].map((user) => {
           if (!user.roles.includes(Role.SERM_APPROVED)) {
             return <></>;
           }
 
           return (
-            <div className="flex h-80 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-neutral-700/50 bg-secondary p-4 sm:max-w-64">
+            <div className="flex h-72 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-neutral-700/50 bg-secondary p-4 sm:max-w-56">
               <Image
                 src={user.image}
                 alt={`Image of ${user.name}`}
@@ -133,6 +140,9 @@ function Components(): JSX.Element {
                   {user.name}
                 </h1>
                 <p className="text-sm font-thin text-white">{user.email}</p>
+                <p className="mt-4 w-fit rounded-md border border-primary bg-emerald-950/50 px-2 py-1 text-xs font-thin text-white">
+                  SE&RM Approved
+                </p>
               </div>
             </div>
           );
