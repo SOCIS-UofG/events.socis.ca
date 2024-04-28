@@ -167,12 +167,9 @@ function Components(): JSX.Element {
             The event that you provided is invalid.
           </p>
 
-          <Link
-            href="/"
-            className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
-          >
+          <Button className="btn" as={Link} color="primary" href="/">
             Go back
-          </Link>
+          </Button>
         </div>
       </MainWrapper>
     );
@@ -193,12 +190,9 @@ function Components(): JSX.Element {
             There was an error fetching the event data.
           </p>
 
-          <Link
-            href="/"
-            className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
-          >
+          <Button className="btn" as={Link} color="primary" href="/">
             Go back
-          </Link>
+          </Button>
         </div>
       </MainWrapper>
     );
@@ -369,8 +363,8 @@ function Components(): JSX.Element {
          * The user can set the image of the event. This will be displayed on the event page.
          */}
         <label className="mb-2 mt-5 text-white">Event Image</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none"
+        <Input
+          className="w-full"
           placeholder="Image"
           type="file"
           accept="image/*"
