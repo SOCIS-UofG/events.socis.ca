@@ -71,7 +71,7 @@ function Components(): JSX.Element {
    */
   if (status === "loading") {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <Spinner size="lg" color="primary" />
       </MainWrapper>
     );
@@ -81,7 +81,7 @@ function Components(): JSX.Element {
    * Return the main components.
    */
   return (
-    <MainWrapper className="z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-7 p-24">
+    <MainWrapper className="z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-7 p-12">
       <div className="flex flex-col items-center justify-center gap-4">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           SE&RM Approved Members
@@ -94,14 +94,19 @@ function Components(): JSX.Element {
       </div>
       <div className="flex flex-wrap items-center justify-center gap-4">
         <Button
+          className="btn"
           as={Link}
           color="primary"
           href={config.event.planningQuestionaireUrl}
-          className="text-white"
         >
           Download the Event Planning Questionnaire
         </Button>
-        <Button as={Link} color="default" href={config.event.eventPlanningUrl}>
+        <Button
+          className="btn"
+          as={Link}
+          color="default"
+          href={config.event.eventPlanningUrl}
+        >
           Event Planning Steps
         </Button>
       </div>

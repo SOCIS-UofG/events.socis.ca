@@ -146,7 +146,7 @@ function Components(): JSX.Element {
     editStatus === "loading"
   ) {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <Spinner size="lg" color="primary" />
       </MainWrapper>
     );
@@ -157,7 +157,7 @@ function Components(): JSX.Element {
    */
   if (!eventId) {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Event
         </h1>
@@ -183,7 +183,7 @@ function Components(): JSX.Element {
    */
   if (fetchStatus === "error") {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Server Error
         </h1>
@@ -209,7 +209,7 @@ function Components(): JSX.Element {
    */
   if (sessionStatus !== "authenticated") {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Session
         </h1>
@@ -219,10 +219,10 @@ function Components(): JSX.Element {
             Please sign in to proceed.
           </p>
           <Button
+            className="btn"
             as={Link}
             color="primary"
             href="https://auth.socis.ca/signin"
-            className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
           >
             Sign in
           </Button>
@@ -238,7 +238,7 @@ function Components(): JSX.Element {
    */
   if (!hasPermissions(session.user, [Permission.EDIT_EVENT])) {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Permissions
         </h1>
@@ -248,10 +248,10 @@ function Components(): JSX.Element {
             You do not have the permissions to manage events.
           </p>
           <Button
+            className="btn"
             as={Link}
             color="primary"
             href="https://auth.socis.ca/signin"
-            className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
           >
             Switch accounts
           </Button>
@@ -266,7 +266,7 @@ function Components(): JSX.Element {
         className="flex w-full flex-col"
         onSubmit={async (e) => onSubmit(e, event, session)}
       >
-        <h1 className="mb-7 text-5xl font-thin uppercase text-white md:text-7xl">
+        <h1 className="mb-7 text-5xl font-normal uppercase text-white md:text-7xl">
           Update Event
         </h1>
 
@@ -413,10 +413,10 @@ function Components(): JSX.Element {
         </div>
 
         <div className="mt-10 flex w-full flex-row items-start justify-start gap-4">
-          <Button color="primary" type="submit" className="w-full">
+          <Button className="btn w-full" color="primary" type="submit">
             Update Event
           </Button>
-          <Button as={Link} color="default" href="/" className="w-1/2">
+          <Button className="btn w-1/2" as={Link} color="default" href="/">
             Cancel
           </Button>
         </div>

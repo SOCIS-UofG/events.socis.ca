@@ -143,7 +143,7 @@ function Components(): JSX.Element {
    * Return the main components
    */
   return (
-    <MainWrapper className="fade-in relative z-40 flex min-h-screen w-screen flex-col items-center justify-center gap-20 px-12 pb-20 pt-36 lg:px-20 lg:pt-40">
+    <MainWrapper className="fade-in relative z-40 flex min-h-screen w-screen flex-col items-start justify-start gap-20 px-12 pb-20 pt-36 lg:px-20 lg:pt-40">
       {/**
        * PINNED EVENTS
        *
@@ -193,6 +193,7 @@ function Components(): JSX.Element {
 
           <div className="flex w-full flex-wrap items-start justify-start gap-4">
             <Button
+              className="btn"
               as={Link}
               color="primary"
               href={CAN_CREATE_EVENTS ? "/create" : config.event.suggestionUrl}
@@ -200,7 +201,12 @@ function Components(): JSX.Element {
               {CAN_CREATE_EVENTS ? "Create an event" : "Suggest an event"}
             </Button>
 
-            <Button as={Link} color="default" href={config.event.calendarUrl}>
+            <Button
+              className="btn"
+              as={Link}
+              color="default"
+              href={config.event.calendarUrl}
+            >
               See Event Calendar
             </Button>
           </div>

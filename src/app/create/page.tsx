@@ -57,7 +57,7 @@ function Components(): JSX.Element {
    */
   if (sessionStatus === "loading" || creationStatus === "loading" || !event) {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <Spinner size="lg" color="primary" />
       </MainWrapper>
     );
@@ -70,7 +70,7 @@ function Components(): JSX.Element {
    */
   if (sessionStatus === "unauthenticated" || !session) {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Session
         </h1>
@@ -79,7 +79,12 @@ function Components(): JSX.Element {
           <p className="text-center text-sm font-light text-white lg:text-base">
             Please sign in to proceed.
           </p>
-          <Button as={Link} color="primary" href="https://auth.socis.ca/signin">
+          <Button
+            className="btn"
+            as={Link}
+            color="primary"
+            href="https://auth.socis.ca/signin"
+          >
             Sign in
           </Button>
         </div>
@@ -94,7 +99,7 @@ function Components(): JSX.Element {
    */
   if (!hasPermissions(session.user, [Permission.CREATE_EVENT])) {
     return (
-      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Permissions
         </h1>
@@ -103,7 +108,12 @@ function Components(): JSX.Element {
           <p className="text-center text-sm font-light text-white lg:text-base">
             You do not have the permissions to manage events.
           </p>
-          <Button as={Link} color="primary" href="https://auth.socis.ca/signin">
+          <Button
+            className="btn"
+            as={Link}
+            color="primary"
+            href="https://auth.socis.ca/signin"
+          >
             Switch accounts
           </Button>
         </div>
@@ -324,7 +334,7 @@ function Components(): JSX.Element {
            * If the user hasn't filled in all the fields, then the event will not be created
            * and an error message will be displayed.
            */}
-          <Button color="primary" type="submit" className="w-full">
+          <Button className="btn w-full" color="primary" type="submit">
             Create Event
           </Button>
 
@@ -333,7 +343,7 @@ function Components(): JSX.Element {
            *
            * This will just redirect them back to the events page.
            */}
-          <Button as={Link} color="default" href="/" className="w-1/2">
+          <Button className="btn w-1/2" as={Link} color="default" href="/">
             Cancel
           </Button>
         </div>

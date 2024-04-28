@@ -172,9 +172,9 @@ export default function EventCard(props: EventCardProps): JSX.Element {
           </ModalBody>
           <ModalFooter>
             <Button
+              className="btn"
               disabled={status === "loading"}
               color="danger"
-              className="btn"
               onClick={async () => {
                 if (!props.user) {
                   return;
