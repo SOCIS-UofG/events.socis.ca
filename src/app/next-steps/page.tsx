@@ -113,14 +113,7 @@ function Components(): JSX.Element {
       </div>
 
       <div className="flex w-full flex-wrap items-center justify-center gap-10">
-        {[
-          {
-            name: "John Doe",
-            email: "test",
-            roles: [Role.SERM_APPROVED],
-            image: "",
-          } as User,
-        ].map((user) => {
+        {users.map((user) => {
           if (!user.roles.includes(Role.SERM_APPROVED)) {
             return <></>;
           }
