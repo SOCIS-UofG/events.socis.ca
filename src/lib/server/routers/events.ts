@@ -2,8 +2,8 @@ import { Prisma } from "@/lib/prisma";
 import { publicProcedure } from "../trpc";
 import { z } from "zod";
 import { hasPermissions } from "@/lib/utils/permissions";
-import { Permission } from "@/types/permission";
-import { type Event } from "@/types/event";
+import { Permission } from "@/types/global/permission";
+import { type Event } from "@/types/global/event";
 import config from "@/lib/config/event.config";
 import { v4 as uuidv4 } from "uuid";
 import uploadFile from "./utils/upload";
@@ -46,11 +46,11 @@ export const eventsRouter = {
     .mutation(async ({ input }) => {
       const user = await Prisma.getUserBySecretNoPassword(input.accessToken);
       if (!user) {
-        return { success: false, event: null };
+        throw new Error("Unauthorized");
       }
 
       if (!hasPermissions(user, [Permission.CREATE_EVENT])) {
-        return { success: false, event: null };
+        throw new Error("Unauthorized");
       }
 
       // Mutable image variable
@@ -64,8 +64,9 @@ export const eventsRouter = {
           null /* denotes no previous image */,
           eventImage,
         );
+
         if (!blob) {
-          return { message: "Internal error", user: null, success: false };
+          throw new Error("Internal error");
         }
 
         eventImage = blob.url;
@@ -85,10 +86,10 @@ export const eventsRouter = {
       });
 
       if (!newEvent) {
-        return { success: false, event: null };
+        throw new Error("Internal error");
       }
 
-      return { success: true, event: newEvent };
+      return { event: newEvent };
     }),
 
   /**
@@ -106,17 +107,17 @@ export const eventsRouter = {
     .mutation(async ({ input }) => {
       const user = await Prisma.getUserBySecretNoPassword(input.accessToken);
       if (!user) {
-        return { success: false, event: null };
+        throw new Error("Unauthorized");
       }
 
       if (!hasPermissions(user, [Permission.DELETE_EVENT])) {
-        return { success: false, event: null };
+        throw new Error("Unauthorized");
       }
 
       // if the event is not found, return null
       const event = await Prisma.getEventById(input.id);
       if (!event) {
-        return { success: false, event: null };
+        throw new Error("Event not found");
       }
 
       // delete the event image if it is not the default image
@@ -124,18 +125,16 @@ export const eventsRouter = {
         try {
           await del(event.image);
         } catch (e) {
-          console.log(e);
-
-          return { success: false, event: null };
+          throw new Error("Internal error");
         }
       }
 
       const deletedEvent = await Prisma.deleteEventById(input.id);
       if (!deletedEvent) {
-        return { success: false, event: null };
+        throw new Error("Internal error");
       }
 
-      return { success: true, event: deletedEvent };
+      return { event: deletedEvent };
     }),
 
   /**
@@ -175,17 +174,17 @@ export const eventsRouter = {
     .mutation(async ({ input }) => {
       const user = await Prisma.getUserBySecretNoPassword(input.accessToken);
       if (!user) {
-        return { success: false, event: null };
+        throw new Error("Unauthorized");
       }
 
       if (!hasPermissions(user, [Permission.EDIT_EVENT])) {
-        return { success: false, event: null };
+        throw new Error("Unauthorized");
       }
 
       // get the event
       const prevEvent = await Prisma.getEventById(input.event.id);
       if (!prevEvent) {
-        return { success: false, event: null };
+        throw new Error("Event not found");
       }
 
       // Mutable image variable
@@ -197,7 +196,7 @@ export const eventsRouter = {
       if (eventImage) {
         const blob = await uploadFile(prevEvent.image, eventImage);
         if (!blob) {
-          return { message: "Internal error", user: null, success: false };
+          throw new Error("Internal error");
         }
 
         eventImage = blob.url;
@@ -216,10 +215,10 @@ export const eventsRouter = {
       } as Event);
 
       if (!updatedEvent) {
-        return { success: false, event: null };
+        throw new Error("Internal error");
       }
 
-      return { success: true, event: updatedEvent };
+      return { event: updatedEvent };
     }),
 
   /**
@@ -230,7 +229,7 @@ export const eventsRouter = {
   getAllEvents: publicProcedure.mutation(async () => {
     const events = await Prisma.getAllEvents();
 
-    return { success: true, events };
+    return { events };
   }),
 
   /**
@@ -246,10 +245,11 @@ export const eventsRouter = {
     )
     .mutation(async ({ input }) => {
       const event = await Prisma.getEventById(input.id);
+
       if (!event) {
-        return { success: false, event: null };
+        throw new Error("Event not found");
       }
 
-      return { success: true, event };
+      return { event };
     }),
 };

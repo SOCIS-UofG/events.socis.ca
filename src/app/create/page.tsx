@@ -4,34 +4,18 @@ import { type FormEvent, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
 import { type Session } from "next-auth";
 import { hasPermissions } from "@/lib/utils/permissions";
-import { Permission } from "@/types/permission";
-import {
-  ErrorMessage,
-  SuccessMessage,
-  MainWrapper,
-  LoadingSpinnerCenter,
-  CustomCursor,
-  Navbar,
-  LinkButton,
-  Button,
-} from "socis-components";
+import { Permission } from "@/types/global/permission";
 import { useRouter } from "next/navigation";
-import { type Event } from "@/types/event";
+import { type Event } from "@/types/global/event";
 import { isValidEventData } from "@/lib/utils/events";
-import { Checkbox } from "@nextui-org/react";
+import { Button, Checkbox, Input, Spinner, Textarea } from "@nextui-org/react";
 import config from "@/lib/config/event.config";
 import { trpc } from "@/lib/trpc/client";
-
-/**
- * The status of the form.
- */
-enum FormStatus {
-  IDLE,
-  LOADING,
-  SUCCESS,
-  ERROR,
-  EMPTY_FIELDS,
-}
+import { type FormStatus } from "@/types";
+import Navbar from "@/components/ui/global/Navbar";
+import CustomCursor from "@/components/ui/global/CustomCursor";
+import MainWrapper from "@/components/ui/global/MainWrapper";
+import Link from "next/link";
 
 /**
  * Wraps the main components in a session provider for next auth.
@@ -61,10 +45,9 @@ function Components(): JSX.Element {
   const router = useRouter();
 
   const { data: session, status: sessionStatus } = useSession();
-  const { mutateAsync: createEvent, status: trpcStatus } =
-    trpc.createEvent.useMutation();
+  const { mutateAsync: createEvent } = trpc.createEvent.useMutation();
 
-  const [creationStatus, setCreationStatus] = useState(FormStatus.IDLE);
+  const [creationStatus, setCreationStatus] = useState<FormStatus>("idle");
   const [event, setEvent] = useState<Event>(config.event.default as Event);
 
   /**
@@ -72,12 +55,12 @@ function Components(): JSX.Element {
    * default event hasn't been generated (undefined), then return a loading
    * screen.
    */
-  if (
-    sessionStatus === "loading" ||
-    creationStatus === FormStatus.LOADING ||
-    !event
-  ) {
-    return <LoadingSpinnerCenter />;
+  if (sessionStatus === "loading" || creationStatus === "loading" || !event) {
+    return (
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+        <Spinner size="lg" color="primary" />
+      </MainWrapper>
+    );
   }
 
   /**
@@ -87,7 +70,7 @@ function Components(): JSX.Element {
    */
   if (sessionStatus === "unauthenticated" || !session) {
     return (
-      <MainWrapper>
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Session
         </h1>
@@ -96,12 +79,9 @@ function Components(): JSX.Element {
           <p className="text-center text-sm font-light text-white lg:text-base">
             Please sign in to proceed.
           </p>
-          <a
-            href="https://auth.socis.ca/signin"
-            className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
-          >
+          <Button as={Link} color="primary" href="https://auth.socis.ca/signin">
             Sign in
-          </a>
+          </Button>
         </div>
       </MainWrapper>
     );
@@ -114,7 +94,7 @@ function Components(): JSX.Element {
    */
   if (!hasPermissions(session.user, [Permission.CREATE_EVENT])) {
     return (
-      <MainWrapper>
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Permissions
         </h1>
@@ -123,12 +103,9 @@ function Components(): JSX.Element {
           <p className="text-center text-sm font-light text-white lg:text-base">
             You do not have the permissions to manage events.
           </p>
-          <a
-            href="https://auth.socis.ca/signin"
-            className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
-          >
+          <Button as={Link} color="primary" href="https://auth.socis.ca/signin">
             Switch accounts
-          </a>
+          </Button>
         </div>
       </MainWrapper>
     );
@@ -155,14 +132,14 @@ function Components(): JSX.Element {
     /**
      * Set the status to loading so that the user knows that the event is being created.
      */
-    setCreationStatus(FormStatus.LOADING);
+    setCreationStatus("loading");
 
     /**
      * If the provideed data for the event being created is invalid, then
      * return an error message. This is so that empty events are not created.
      */
     if (!isValidEventData(event)) {
-      setCreationStatus(FormStatus.EMPTY_FIELDS);
+      setCreationStatus("empty_fields");
 
       return;
     }
@@ -170,29 +147,17 @@ function Components(): JSX.Element {
     /**
      * Create the event using the API.
      */
-    const res = await createEvent({ accessToken: session.user.secret, event });
-    if (trpcStatus === "error") {
-      setCreationStatus(FormStatus.ERROR);
-
-      return;
-    }
-
-    /**
-     * If the event was successfully created, then set the status to success.
-     */
-    if (res.success) {
-      setCreationStatus(FormStatus.SUCCESS);
-
-      /**
-       * Redirect the user to the next-steps page.
-       */
-      router.push("/next-steps");
-    } else {
-      /**
-       * If the event was not successfully created, then set the status to error.
-       */
-      setCreationStatus(FormStatus.ERROR);
-    }
+    await createEvent({
+      accessToken: session.user.secret,
+      event,
+    })
+      .then(() => {
+        setCreationStatus("success");
+        router.push("/next-steps");
+      })
+      .catch(() => {
+        setCreationStatus("error");
+      });
   }
 
   /**
@@ -205,7 +170,7 @@ function Components(): JSX.Element {
         onSubmit={async (e) => onSubmit(e, event, session)}
       >
         {/** HEADER */}
-        <h1 className="mb-7 text-5xl font-thin uppercase text-white md:text-7xl">
+        <h1 className="mb-7 text-5xl uppercase text-white md:text-7xl">
           Create Event
         </h1>
 
@@ -216,10 +181,11 @@ function Components(): JSX.Element {
          * This will be displayed on the event page.
          */}
         <label className="mb-2 text-white">Event Name</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none"
+        <Input
+          className="w-full"
           maxLength={config.event.max.name}
           minLength={config.event.min.name}
+          label="Name"
           placeholder="Name"
           type="text"
           onChange={(e) => setEvent({ ...event, name: e.target.value })}
@@ -232,10 +198,11 @@ function Components(): JSX.Element {
          * This will be displayed on the event page.
          */}
         <label className="mb-2 mt-5 text-white">Event Description</label>
-        <textarea
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none"
+        <Textarea
+          className="w-full"
           maxLength={config.event.max.description}
           minLength={config.event.min.description}
+          label="Description"
           placeholder="Description"
           onChange={(e) => setEvent({ ...event, description: e.target.value })}
         />
@@ -248,10 +215,11 @@ function Components(): JSX.Element {
          * The location is not validated and is a string -- the user can input anything.
          */}
         <label className="mb-2 mt-5 text-white">Event Location</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none"
+        <Input
+          className="w-full"
           maxLength={config.event.max.location}
           minLength={config.event.min.location}
+          label="Location"
           placeholder="Location"
           type="text"
           onChange={(e) => setEvent({ ...event, location: e.target.value })}
@@ -265,10 +233,11 @@ function Components(): JSX.Element {
          * The date is not validated and is a string -- the user can input anything.
          */}
         <label className="mb-2 mt-5 text-white">Event Date</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none"
+        <Input
+          className="w-full"
           maxLength={config.event.max.date}
           minLength={config.event.min.date}
+          label="Date"
           placeholder="Date"
           type="date"
           onChange={(e) => setEvent({ ...event, date: e.target.value })}
@@ -282,10 +251,11 @@ function Components(): JSX.Element {
          * The perks are seperated by commas.
          */}
         <label className="mb-2 mt-5 text-white">Event Perks</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none"
+        <Input
+          className="w-full"
           maxLength={config.event.max.perksInput}
           minLength={config.event.min.perks}
+          label="Perks"
           placeholder="Perks (Seperate by comma)"
           type="text"
           onChange={(e) => {
@@ -304,8 +274,8 @@ function Components(): JSX.Element {
          * The user can add an image to the event.
          */}
         <label className="mb-2 mt-5 text-white">Event Image</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none"
+        <Input
+          className="w-full"
           placeholder="Image"
           type="file"
           accept="image/*"
@@ -345,7 +315,7 @@ function Components(): JSX.Element {
           <p className="text-white">Pin Event</p>
         </Checkbox>
 
-        <div className="mt-5 flex w-full flex-wrap items-center justify-center gap-5">
+        <div className="mt-5 flex w-full flex-row items-center justify-center gap-5">
           {/**
            * CREATE EVENT
            *
@@ -354,14 +324,18 @@ function Components(): JSX.Element {
            * If the user hasn't filled in all the fields, then the event will not be created
            * and an error message will be displayed.
            */}
-          <Button type="submit">Create Event</Button>
+          <Button color="primary" type="submit" className="w-full">
+            Create Event
+          </Button>
 
           {/**
            * If the user doesn't want to create the event, then they can cancel.
            *
            * This will just redirect them back to the events page.
            */}
-          <LinkButton href="/">Cancel</LinkButton>
+          <Button as={Link} color="default" href="/" className="w-1/2">
+            Cancel
+          </Button>
         </div>
       </form>
 
@@ -371,10 +345,8 @@ function Components(): JSX.Element {
          *
          * This will appear before the user is redirected to the /next-steps page.
          */}
-        {creationStatus === FormStatus.SUCCESS && (
-          <SuccessMessage>
-            <p>Event created successfully!</p>
-          </SuccessMessage>
+        {creationStatus === "success" && (
+          <p className="text-primary">Event created successfully.</p>
         )}
 
         {/**
@@ -382,10 +354,8 @@ function Components(): JSX.Element {
          *
          * The user will have the chance to input the data again.
          */}
-        {creationStatus === FormStatus.ERROR && (
-          <ErrorMessage>
-            <p>There was an error creating your event.</p>
-          </ErrorMessage>
+        {creationStatus === "error" && (
+          <p className="text-red-500">An error occurred. Please try again.</p>
         )}
 
         {/**
@@ -393,10 +363,8 @@ function Components(): JSX.Element {
          *
          * The user will have the chance to input the data again.
          */}
-        {creationStatus === FormStatus.EMPTY_FIELDS && (
-          <ErrorMessage>
-            <p>Make sure all fields are filled in.</p>
-          </ErrorMessage>
+        {creationStatus === "empty_fields" && (
+          <p className="text-red-500">Please fill in all the fields.</p>
         )}
       </div>
     </MainWrapper>

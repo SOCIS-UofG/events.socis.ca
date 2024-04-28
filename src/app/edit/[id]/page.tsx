@@ -5,36 +5,18 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
-import { type Event } from "@/types/event";
+import { type Event } from "@/types/global/event";
 import { type Session } from "next-auth";
 import config from "@/lib/config/event.config";
 import { isValidEventData } from "@/lib/utils/events";
-import { Checkbox } from "@nextui-org/react";
-import {
-  Button,
-  CustomCursor,
-  ErrorMessage,
-  LinkButton,
-  LoadingSpinnerCenter,
-  MainWrapper,
-  Navbar,
-  SuccessMessage,
-} from "socis-components";
+import { Button, Checkbox, Input, Spinner, Textarea } from "@nextui-org/react";
 import { trpc } from "@/lib/trpc/client";
 import { hasPermissions } from "@/lib/utils/permissions";
-import { Permission } from "@/types/permission";
-
-/**
- * The status of the form.
- */
-enum FormStatus {
-  IDLE,
-  LOADING,
-  SUCCESS,
-  ERROR,
-  EMPTY_FIELDS,
-  NEED_FETCH,
-}
+import { Permission } from "@/types/global/permission";
+import { type FormStatus } from "@/types";
+import Navbar from "@/components/ui/global/Navbar";
+import CustomCursor from "@/components/ui/global/CustomCursor";
+import MainWrapper from "@/components/ui/global/MainWrapper";
 
 /**
  * Wraps the main components in a session provider for next auth.
@@ -65,8 +47,8 @@ function Components(): JSX.Element {
   const router = useRouter();
 
   const [event, setEvent] = useState<Event | undefined>(undefined);
-  const [editStatus, setEditStatus] = useState(FormStatus.IDLE);
-  const [fetchStatus, setFetchStatus] = useState(FormStatus.NEED_FETCH);
+  const [editStatus, setEditStatus] = useState<FormStatus>("idle");
+  const [fetchStatus, setFetchStatus] = useState<FormStatus>("needs_fetch");
   const { mutateAsync: getEvent } = trpc.getEvent.useMutation();
   const { mutateAsync: updateEvent } = trpc.updateEvent.useMutation();
 
@@ -85,7 +67,7 @@ function Components(): JSX.Element {
      * If the event id is invalid or we are already fetching the event data,
      * then don't fetch the event data again.
      */
-    if (!eventId || fetchStatus !== FormStatus.NEED_FETCH) {
+    if (!eventId || fetchStatus !== "needs_fetch") {
       return;
     }
 
@@ -93,23 +75,18 @@ function Components(): JSX.Element {
      * Set the fetch status to loading so that we don't fetch the event again and
      * can display a loading screen to the user.
      */
-    setFetchStatus(FormStatus.LOADING);
+    setFetchStatus("loading");
 
     /**
      * Fetch the event data from the database.
      */
     getEvent({ id: eventId })
-      .then((data) => {
-        if (!data.event) {
-          setFetchStatus(FormStatus.ERROR);
-          return;
-        }
-
-        setEvent(data.event);
-        setFetchStatus(FormStatus.SUCCESS);
+      .then((res) => {
+        setEvent(res.event);
+        setFetchStatus("success");
       })
       .catch(() => {
-        setFetchStatus(FormStatus.ERROR);
+        setFetchStatus("error");
       });
   }, []);
 
@@ -133,14 +110,14 @@ function Components(): JSX.Element {
     /**
      * Set the status to loading so that the user knows that the event is being created.
      */
-    setEditStatus(FormStatus.LOADING);
+    setEditStatus("loading");
 
     /**
      * If the provideed data for the event being created is invalid, then
      * return an error message. This is so that empty events are not created.
      */
     if (!isValidEventData(event)) {
-      setEditStatus(FormStatus.EMPTY_FIELDS);
+      setEditStatus("empty_fields");
 
       return;
     }
@@ -148,19 +125,31 @@ function Components(): JSX.Element {
     /**
      * Update the event in the database.
      */
-    const res = await updateEvent({ accessToken: session.user.secret, event });
+    await updateEvent({ accessToken: session.user.secret, event })
+      .then(() => {
+        setFetchStatus("success");
+        router.push("/");
+      })
+      .catch(() => {
+        setFetchStatus("error");
+      });
+  }
 
-    /**
-     * If the event was successfully updated, then set the status to success.
-     */
-    if (res.success) {
-      setEditStatus(FormStatus.SUCCESS);
-
-      /**
-       * Redirect the user to the events page.
-       */
-      router.push("/");
-    }
+  /**
+   * If we are currently signing the user in, the event is invalid,
+   * or we are still fetching the event data, show a loading screen.
+   */
+  if (
+    !event ||
+    sessionStatus === "loading" ||
+    fetchStatus === "loading" ||
+    editStatus === "loading"
+  ) {
+    return (
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+        <Spinner size="lg" color="primary" />
+      </MainWrapper>
+    );
   }
 
   /**
@@ -168,7 +157,7 @@ function Components(): JSX.Element {
    */
   if (!eventId) {
     return (
-      <MainWrapper>
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Event
         </h1>
@@ -177,6 +166,7 @@ function Components(): JSX.Element {
           <p className="text-center text-sm font-light text-white lg:text-base">
             The event that you provided is invalid.
           </p>
+
           <Link
             href="/"
             className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
@@ -189,16 +179,29 @@ function Components(): JSX.Element {
   }
 
   /**
-   * If we are currently signing the user in, the event is invalid,
-   * or we are still fetching the event data, show a loading screen.
+   * If there was an error fetching the event data, then show an error message.
    */
-  if (
-    !event ||
-    sessionStatus === "loading" ||
-    fetchStatus === FormStatus.LOADING ||
-    editStatus === FormStatus.LOADING
-  ) {
-    return <LoadingSpinnerCenter />;
+  if (fetchStatus === "error") {
+    return (
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
+        <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
+          Server Error
+        </h1>
+
+        <div className="flex flex-col gap-5">
+          <p className="text-center text-sm font-light text-white lg:text-base">
+            There was an error fetching the event data.
+          </p>
+
+          <Link
+            href="/"
+            className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
+          >
+            Go back
+          </Link>
+        </div>
+      </MainWrapper>
+    );
   }
 
   /**
@@ -206,7 +209,7 @@ function Components(): JSX.Element {
    */
   if (sessionStatus !== "authenticated") {
     return (
-      <MainWrapper>
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Session
         </h1>
@@ -215,26 +218,15 @@ function Components(): JSX.Element {
           <p className="text-center text-sm font-light text-white lg:text-base">
             Please sign in to proceed.
           </p>
-          <a
+          <Button
+            as={Link}
+            color="primary"
             href="https://auth.socis.ca/signin"
             className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
           >
             Sign in
-          </a>
+          </Button>
         </div>
-      </MainWrapper>
-    );
-  }
-
-  /**
-   * If there was an error with fetching the event, show an error message.
-   */
-  if (fetchStatus === FormStatus.ERROR) {
-    return (
-      <MainWrapper>
-        <ErrorMessage>
-          There was an error fetching the event. Please try again later.
-        </ErrorMessage>
       </MainWrapper>
     );
   }
@@ -246,7 +238,7 @@ function Components(): JSX.Element {
    */
   if (!hasPermissions(session.user, [Permission.EDIT_EVENT])) {
     return (
-      <MainWrapper>
+      <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-24">
         <h1 className="text-center text-3xl font-bold text-white lg:text-5xl">
           Invalid Permissions
         </h1>
@@ -255,19 +247,21 @@ function Components(): JSX.Element {
           <p className="text-center text-sm font-light text-white lg:text-base">
             You do not have the permissions to manage events.
           </p>
-          <a
+          <Button
+            as={Link}
+            color="primary"
             href="https://auth.socis.ca/signin"
             className="rounded-lg border border-primary px-10 py-3 text-center font-thin text-white hover:bg-emerald-900/50"
           >
             Switch accounts
-          </a>
+          </Button>
         </div>
       </MainWrapper>
     );
   }
 
   return (
-    <MainWrapper className="p-10 pt-20 lg:p-20 lg:pt-44">
+    <MainWrapper className="flex min-h-screen w-screen flex-col items-center justify-center p-10 pt-20 lg:p-20 lg:pt-44">
       <form
         className="flex w-full flex-col"
         onSubmit={async (e) => onSubmit(e, event, session)}
@@ -282,10 +276,11 @@ function Components(): JSX.Element {
          * The user can set the name of the event. This will be displayed on the event page.
          */}
         <label className="mb-2 text-white">Event Name</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none disabled:opacity-50"
+        <Input
+          className="w-full"
           maxLength={config.event.max.name}
           minLength={config.event.min.name}
+          label="Name"
           placeholder="Name"
           type="text"
           value={event.name}
@@ -298,10 +293,11 @@ function Components(): JSX.Element {
          * The user can set the description of the event. This will be displayed on the event page.
          */}
         <label className="mb-2 mt-5 text-white">Event Description</label>
-        <textarea
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none disabled:opacity-50"
+        <Textarea
+          className="w-full"
           maxLength={config.event.max.description}
           minLength={config.event.min.description}
+          label="Description"
           placeholder="Description"
           value={event.description}
           onChange={(e) => setEvent({ ...event, description: e.target.value })}
@@ -313,10 +309,11 @@ function Components(): JSX.Element {
          * The user can set the location of the event. This will be displayed on the event page.
          */}
         <label className="mb-2 mt-5 text-white">Event Location</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none disabled:opacity-50"
+        <Input
+          className="w-full"
           maxLength={config.event.max.location}
           minLength={config.event.min.location}
+          label="Location"
           placeholder="Location"
           type="text"
           value={event.location}
@@ -330,10 +327,11 @@ function Components(): JSX.Element {
          * The event date is not validated and is a string -- the user can enter anything.
          */}
         <label className="mb-2 mt-5 text-white">Event Date</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none disabled:opacity-50"
+        <Input
+          className="w-full"
           maxLength={config.event.max.date}
           minLength={config.event.min.date}
+          label="Date"
           placeholder="Date"
           type="date"
           value={event.date}
@@ -347,10 +345,11 @@ function Components(): JSX.Element {
          * on the event page.
          */}
         <label className="mb-2 mt-5 text-white">Event Perks</label>
-        <input
-          className="rounded-lg border border-primary bg-secondary px-4 py-3 text-base font-thin tracking-wider text-white duration-300 ease-in-out focus:outline-none disabled:opacity-50"
+        <Input
+          className="w-full"
           maxLength={config.event.max.perksInput}
           minLength={config.event.min.perks}
+          label="Perks"
           placeholder="Perks (Seperate by comma)"
           type="text"
           value={event.perks.join(",")}
@@ -413,29 +412,27 @@ function Components(): JSX.Element {
           </Checkbox>
         </div>
 
-        <div className="mt-10 flex w-full flex-wrap items-start justify-start gap-4">
-          <Button type="submit">Update Event</Button>
-          <LinkButton href="/">Cancel</LinkButton>
+        <div className="mt-10 flex w-full flex-row items-start justify-start gap-4">
+          <Button color="primary" type="submit" className="w-full">
+            Update Event
+          </Button>
+          <Button as={Link} color="default" href="/" className="w-1/2">
+            Cancel
+          </Button>
         </div>
       </form>
 
       <div className="mt-5 flex flex-col items-center justify-center gap-5">
-        {editStatus === FormStatus.SUCCESS && (
-          <SuccessMessage>
-            <p>Event updated successfully!</p>
-          </SuccessMessage>
+        {editStatus === "success" && (
+          <p className="text-primary">Event updated successfully.</p>
         )}
 
-        {editStatus === FormStatus.ERROR && (
-          <ErrorMessage>
-            <p>There was an error creating your event.</p>
-          </ErrorMessage>
+        {editStatus === "error" && (
+          <p className="text-red-500">There was an error updating the event.</p>
         )}
 
-        {editStatus === FormStatus.EMPTY_FIELDS && (
-          <ErrorMessage>
-            <p>Make sure all fields are filled in.</p>
-          </ErrorMessage>
+        {editStatus === "empty_fields" && (
+          <p className="text-red-500">Please fill in all the fields.</p>
         )}
       </div>
     </MainWrapper>
