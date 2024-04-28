@@ -1,12 +1,11 @@
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  /*
   experimental: {
-    ppr: true,
-    optimizePackageImports: ["three", "react-three"],
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
   },
-  */
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.

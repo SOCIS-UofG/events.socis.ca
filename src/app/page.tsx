@@ -112,6 +112,7 @@ function Components(): JSX.Element {
    */
   const UPCOMING_EVENTS = events.filter((event) => {
     const eventDate = new Date(event.date);
+
     /**
      * If the event date is invalid, then return true.
      *
@@ -181,7 +182,7 @@ function Components(): JSX.Element {
        * At the end of the events list, render a button to create a new event. This will
        * appear even if there are no events so that users can suggest/create and event.
        */}
-      <div className="flex flex-col items-start justify-start gap-7">
+      <div className="flex w-full flex-col items-start justify-start gap-12">
         <div className="flex flex-col items-start justify-start gap-3">
           <h1 className="text-left text-4xl font-extrabold uppercase text-white sm:text-6xl md:text-7xl lg:text-8xl">
             Upcoming Events
