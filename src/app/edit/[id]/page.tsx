@@ -56,6 +56,7 @@ function Components(): JSX.Element {
   const [event, setEvent] = useState<Event | undefined>(undefined);
   const [editStatus, setEditStatus] = useState<FormStatus>("idle");
   const [fetchStatus, setFetchStatus] = useState<FormStatus>("needs_fetch");
+
   const { mutateAsync: getEvent } = trpc.getEvent.useMutation();
   const { mutateAsync: updateEvent } = trpc.updateEvent.useMutation();
 
