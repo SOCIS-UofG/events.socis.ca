@@ -62,7 +62,7 @@ function Components(): JSX.Element {
    * default event hasn't been generated (undefined), then return a loading
    * screen.
    */
-  if (sessionStatus === "loading" || creationStatus === "loading" || !event) {
+  if (sessionStatus === "loading" || creationStatus === "loading") {
     return (
       <MainWrapper className="relative z-40 flex min-h-screen w-screen flex-col items-center justify-center p-12">
         <Spinner size="lg" color="primary" />
