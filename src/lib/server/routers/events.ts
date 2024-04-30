@@ -6,7 +6,7 @@ import { Permission } from "@/types/global/permission";
 import { type Event } from "@/types/event";
 import config from "@/lib/config/event.config";
 import { v4 as uuidv4 } from "uuid";
-import uploadFile from "./utils/upload";
+import uploadFile from "./utils/uploadFile";
 import { del } from "@vercel/blob";
 
 export const eventsRouter = {
@@ -151,19 +151,23 @@ export const eventsRouter = {
           name: z
             .string()
             .max(config.event.max.name)
-            .min(config.event.min.name),
+            .min(config.event.min.name)
+            .optional(),
           description: z
             .string()
             .max(config.event.max.description)
-            .min(config.event.min.description),
+            .min(config.event.min.description)
+            .optional(),
           date: z
             .string()
             .max(config.event.max.date)
-            .min(config.event.min.date),
+            .min(config.event.min.date)
+            .optional(),
           location: z
             .string()
             .max(config.event.max.location)
-            .min(config.event.min.location),
+            .min(config.event.min.location)
+            .optional(),
           image: z.string().optional(),
           perks: z.array(z.string()).optional(),
           rsvps: z.array(z.string()).optional(),
@@ -195,27 +199,32 @@ export const eventsRouter = {
        */
       if (eventImage) {
         const blob = await uploadFile(prevEvent.image, eventImage);
+
         if (!blob) {
-          throw new Error("Internal error");
+          throw new Error("Error uploading image");
         }
 
         eventImage = blob.url;
+      } else {
+        eventImage = config.event.default.image;
       }
 
       const event = input.event as Event;
       const updatedEvent = await Prisma.updateEventById(event.id, {
-        name: event.name,
-        description: event.description,
-        date: event.date,
-        location: event.location,
-        image: eventImage ?? config.event.default.image,
+        image: eventImage,
+
+        // this can definitely be cleaned up
+        name: event.name ?? config.event.default.name,
+        description: event.description ?? config.event.default.description,
+        date: event.date ?? config.event.default.date,
+        location: event.location ?? config.event.default.location,
         perks: event.perks ?? config.event.default.perks,
         rsvps: event.rsvps ?? config.event.default.rsvps,
         pinned: event.pinned ?? config.event.default.pinned,
       } as Event);
 
       if (!updatedEvent) {
-        throw new Error("Internal error");
+        throw new Error("Failed to update event");
       }
 
       return { event: updatedEvent };
