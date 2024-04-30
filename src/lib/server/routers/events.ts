@@ -70,6 +70,8 @@ export const eventsRouter = {
         }
 
         eventImage = blob.url;
+      } else {
+        eventImage = config.event.default.image;
       }
 
       const event = input.event as Event;

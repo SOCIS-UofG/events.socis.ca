@@ -312,13 +312,12 @@ function Components(): JSX.Element {
             type="file"
             accept="image/*"
             onChange={(e) => {
-              if (!e.target.files) {
-                return;
-              }
-
-              const file = e.target.files[0];
+              const file = e.target.files?.[0];
               if (!file) {
-                return;
+                return setEvent({
+                  ...event,
+                  image: config.event.default.image,
+                });
               }
 
               // verify image is less than 5mb
