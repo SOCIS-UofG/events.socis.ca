@@ -59,14 +59,14 @@ export const eventsRouter = {
       /**
        * Upload the image to the blob storage
        */
-      if (eventImage) {
+      if (eventImage && eventImage !== config.event.default.image) {
         const blob = await uploadFile(
           null /* denotes no previous image */,
           eventImage,
         );
 
         if (!blob) {
-          throw new Error("Internal error");
+          throw new Error("Failed to upload image");
         }
 
         eventImage = blob.url;
@@ -75,10 +75,10 @@ export const eventsRouter = {
       const event = input.event as Event;
       const newEvent = await Prisma.createEvent({
         id: uuidv4(),
-        name: event.name,
-        description: event.description,
-        date: event.date,
-        location: event.location,
+        name: event.name ?? config.event.default.name,
+        description: event.description ?? config.event.default.description,
+        date: event.date ?? config.event.default.date,
+        location: event.location ?? config.event.default.location,
         image: eventImage ?? config.event.default.image,
         perks: event.perks ?? config.event.default.perks,
         rsvps: event.rsvps ?? config.event.default.rsvps,
@@ -86,7 +86,7 @@ export const eventsRouter = {
       });
 
       if (!newEvent) {
-        throw new Error("Internal error");
+        throw new Error("Failed to create event");
       }
 
       return { event: newEvent };
@@ -125,13 +125,13 @@ export const eventsRouter = {
         try {
           await del(event.image);
         } catch (e) {
-          throw new Error("Internal error");
+          throw new Error("Failed to delete image");
         }
       }
 
       const deletedEvent = await Prisma.deleteEventById(input.id);
       if (!deletedEvent) {
-        throw new Error("Internal error");
+        throw new Error("Failed to delete event");
       }
 
       return { event: deletedEvent };
@@ -196,6 +196,14 @@ export const eventsRouter = {
 
       /**
        * Upload the image to the blob storage
+       *
+       * input.event.image is the image to be uploaded.
+       *
+       * it can be a base64 string, empty string, or the default event image (which is a relative path).
+       *
+       * we want to make sure that we're not uploading the default image to the blob storage.
+       *
+       * in the uploadFile function we also check if the image is less than 5mb.
        */
       if (eventImage && eventImage !== config.event.default.image) {
         const blob = await uploadFile(prevEvent.image, eventImage);
