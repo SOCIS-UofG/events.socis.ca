@@ -196,6 +196,14 @@ export const eventsRouter = {
 
       /**
        * Upload the image to the blob storage
+       *
+       * input.event.image is the image to be uploaded.
+       *
+       * it can be a base64 string, empty string, or the default event image (which is a relative path).
+       *
+       * we want to make sure that we're not uploading the default image to the blob storage.
+       *
+       * in the uploadFile function we also check if the image is less than 5mb.
        */
       if (eventImage && eventImage !== config.event.default.image) {
         const blob = await uploadFile(prevEvent.image, eventImage);
