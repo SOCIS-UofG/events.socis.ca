@@ -197,7 +197,7 @@ export const eventsRouter = {
       /**
        * Upload the image to the blob storage
        */
-      if (eventImage) {
+      if (eventImage && eventImage !== config.event.default.image) {
         const blob = await uploadFile(prevEvent.image, eventImage);
 
         if (!blob) {
